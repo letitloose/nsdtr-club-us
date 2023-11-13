@@ -1,0 +1,34 @@
+
+body {
+    background-color: lightblue;
+    margin: auto;
+}
+
+header{
+    max-width: 100%;
+}
+
+header img {
+    width: 100%;
+}
+
+nav{
+    background-color: lightyellow;
+    padding: .5em;
+    display: block;
+}
+
+.content {
+    max-width: 90%;
+    margin-left: 5%;
+    text-align: center;
+}
+
+footer {
+    padding: .5em;
+    background-color: lightyellow;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+}
