@@ -3,11 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/letitloose/nsdtr-club-us/internal/models"
 )
 
@@ -17,22 +17,14 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/base.html",
-		"./ui/html/pages/home.html",
-		"./ui/html/partials/nav.html",
-	}
+	data := app.newTemplateData(r)
 
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	app.render(w, http.StatusOK, "home.html", data)
 
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverError(w, err)
-	}
+}
+
+func (app *application) memberForm(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("create new member form"))
 }
 
 func (app *application) memberCreate(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +56,9 @@ func (app *application) memberCreate(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) memberView(w http.ResponseWriter, r *http.Request) {
 
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	params := httprouter.ParamsFromContext(r.Context())
+
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
 		return
@@ -80,8 +74,10 @@ func (app *application) memberView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Write the snippet data as a plain-text HTTP response body.
-	fmt.Fprintf(w, "%+v", member)
+	data := app.newTemplateData(r)
+	data.Member = member
+
+	app.render(w, http.StatusOK, "member-view.html", data)
 }
 
 func (app *application) memberList(w http.ResponseWriter, r *http.Request) {
@@ -92,8 +88,9 @@ func (app *application) memberList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, member := range members {
-		fmt.Fprintf(w, "%+v\n", member)
-	}
+	data := app.newTemplateData(r)
+	data.Members = members
+
+	app.render(w, http.StatusOK, "member-list.html", data)
 
 }

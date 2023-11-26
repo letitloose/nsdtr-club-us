@@ -1,0 +1,26 @@
+{{define "title"}}Member #{{.Member.ID}}{{end}}
+
+{{define "main"}}
+    {{with .Member}}
+        <div class='content'>
+            <label class="label" for="name">Name:</label>
+            <p class="datafield" id="name"> {{.FirstName}} {{.LastName}}</p>
+            <label class="label" for="email">Email:</label>
+            <p class="datafield" id="email"> {{.Email}}</p>
+            <label class="label" for="phone">Phone:</label>
+            <p class="datafield" id="phone"> {{.PhoneNumber}}</p>
+            <label class="label" for="website">Website:</label>
+            <p class="datafield" id="website"> <a href="https://{{.Website}}">{{.Website}}</a></p>
+            <label class="label" for="region">Region:</label>
+            <p class="datafield" id="region"> {{.Region}}</p>
+            <label class="label" for="created">Created Date:</label>
+            <p class="datafield" id="created"> {{humanDate .CreatedDate}}</p>
+
+            {{if .JoinedDate.Valid}}
+            <label class="label" for="joined">Joined Date:</label>
+            <p class="datafield" id="joined"> {{humanDate .JoinedDate.Time}}</p>
+            {{end}}
+            <a href="/member"><- Return Member List</a>
+        </div>
+    {{end}}
+{{end}}

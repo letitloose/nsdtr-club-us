@@ -1,0 +1,22 @@
+{{define "title"}}Member List{{end}}
+
+{{define "main"}}
+    <div class='content'>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Region</th>
+                <th>Created</th>
+            </tr>
+            {{range .Members}}
+                <tr>
+                    <td><a href="/member/view/{{.ID}}">{{.FirstName}} {{.LastName}}</td>
+                    <td>{{.Email}}</td>
+                    <td>{{.Region}}</td>
+                    <td>{{humanDate .CreatedDate}}</td>
+                </tr>
+            {{end}}
+        </table>
+    </div>
+{{end}}
