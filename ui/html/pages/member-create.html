@@ -1,0 +1,54 @@
+{{define "title"}}Create a New Member{{end}}
+
+{{define "main"}}
+<form action='/member/create' method='POST'>
+    <div>
+        <label>First Name:</label>
+        <input type='text' name='firstname' value='{{.Form.FirstName}}'>
+        {{with .Form.FieldErrors.firstname}}
+            <label class='error'>{{.}}</label>
+        {{end}}
+    </div>
+    <div>
+        <label>Last Name:</label>
+        <input type='text' name='lastname' value='{{.Form.LastName}}'>
+        {{with .Form.FieldErrors.lastname}}
+            <label class='error'>{{.}}</label>
+        {{end}}
+    </div>
+    <div>
+        <label>Email:</label>
+        <input type='text' name='email' value='{{.Form.Email}}'>
+        {{with .Form.FieldErrors.email}}
+            <label class='error'>{{.}}</label>
+        {{end}}
+    </div>
+    <div>
+        <label>Phone Number:</label>
+        <input type='text' name='phonenumber' value='{{.Form.PhoneNumber}}'>
+    </div>
+    <div>
+        <label>Website:</label>
+        <input type='text' name='website' value='{{.Form.Website}}'>
+    </div>
+    <div>
+        <label>Region:</label>
+        <select name="region" id="region" value='{{.Form.Region}}'>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+          </select>
+    </div>
+    <div>
+        <label>Joined:</label>
+        <input type='date' name='joindate' id='joindate' value='{{.Form.JoinedDate}}'>
+    </div>
+    <div>
+        <input type='submit' value='Create Member'>
+    </div>
+</form>
+{{end}}

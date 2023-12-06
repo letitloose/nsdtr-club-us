@@ -41,3 +41,7 @@ footer {
 .datafield {
     display: flex;
 }
+
+.error {
+    color: red;
+}

@@ -9,7 +9,19 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/letitloose/nsdtr-club-us/internal/models"
+	"github.com/letitloose/nsdtr-club-us/internal/validator"
 )
+
+type memberCreateForm struct {
+	FirstName   string
+	LastName    string
+	PhoneNumber string
+	Email       string
+	Website     string
+	Region      int
+	JoinedDate  string
+	validator.Validator
+}
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -24,34 +36,63 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) memberForm(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("create new member form"))
+	data := app.newTemplateData(r)
+
+	data.Form = memberCreateForm{
+		JoinedDate: time.Now().Format("2006-01-02"),
+	}
+
+	app.render(w, http.StatusOK, "member-create.html", data)
 }
 
 func (app *application) memberCreate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	// Create some variables holding dummy data. We'll remove these later on
-	// during the build.
-	firstname := "Lou"
-	lastname := "Garwood"
-	phone := "518-495-2003"
-	email := "louis.garwood@gmail.com"
-	website := "www.github.com/letitloose"
-	region := 1
-	joined := time.Date(2021, 8, 15, 14, 30, 45, 100, time.Local)
+	region, err := strconv.Atoi(r.PostForm.Get("region"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
-	id, err := app.members.Insert(firstname, lastname, phone, email, website, region, joined)
+	form := memberCreateForm{
+		FirstName:   r.PostForm.Get("firstname"),
+		LastName:    r.PostForm.Get("lastname"),
+		PhoneNumber: r.PostForm.Get("phonenumber"),
+		Email:       r.PostForm.Get("email"),
+		Website:     r.PostForm.Get("website"),
+		Region:      region,
+		JoinedDate:  r.PostForm.Get("joindate"),
+	}
+
+	//validate
+	form.CheckField(validator.NotBlank(form.FirstName), "firstname", "You must enter a first name.")
+	form.CheckField(validator.NotBlank(form.LastName), "lastname", "You must enter a last name.")
+	form.CheckField(validator.ValidEmail(form.Email), "email", "You must enter a valid email: name@domain.ext")
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, http.StatusUnprocessableEntity, "member-create.html", data)
+		return
+	}
+
+	joined, err := time.Parse("2006-01-02", r.PostForm.Get("joindate"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	id, err := app.members.Insert(form.FirstName, form.LastName, form.PhoneNumber, form.Email, form.Website, form.Region, joined)
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
 	// Redirect the user to the relevant page for the snippet.
-	http.Redirect(w, r, fmt.Sprintf("/member/view?id=%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/member/view/%d", id), http.StatusSeeOther)
 }
 
 func (app *application) memberView(w http.ResponseWriter, r *http.Request) {

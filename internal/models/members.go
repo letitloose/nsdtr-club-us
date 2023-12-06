@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"time"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 type Member struct {
@@ -17,7 +15,7 @@ type Member struct {
 	Website     string
 	Region      int
 	CreatedDate time.Time
-	JoinedDate  mysql.NullTime
+	JoinedDate  sql.NullTime
 }
 
 type MemberModel struct {

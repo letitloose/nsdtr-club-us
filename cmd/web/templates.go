@@ -13,6 +13,7 @@ type templateData struct {
 	CurrentYear int
 	Member      *models.Member
 	Members     []*models.Member
+	Form        any
 }
 
 // Create a humanDate function which returns a nicely formatted string
