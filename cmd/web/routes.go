@@ -19,11 +19,19 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
-	router.HandlerFunc(http.MethodGet, "/", app.home)
-	router.HandlerFunc(http.MethodGet, "/member/create", app.memberForm)
-	router.HandlerFunc(http.MethodPost, "/member/create", app.memberCreate)
-	router.HandlerFunc(http.MethodGet, "/member/view/:id", app.memberView)
-	router.HandlerFunc(http.MethodGet, "/member", app.memberList)
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
+
+	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.home))
+	router.Handler(http.MethodGet, "/member/create", dynamic.ThenFunc(app.memberForm))
+	router.Handler(http.MethodPost, "/member/create", dynamic.ThenFunc(app.memberCreate))
+	router.Handler(http.MethodGet, "/member/view/:id", dynamic.ThenFunc(app.memberView))
+	router.Handler(http.MethodGet, "/member", dynamic.ThenFunc(app.memberList))
+
+	router.Handler(http.MethodGet, "/user/signup", dynamic.ThenFunc(app.userSignup))
+	router.Handler(http.MethodPost, "/user/signup", dynamic.ThenFunc(app.userSignupPost))
+	router.Handler(http.MethodGet, "/user/login", dynamic.ThenFunc(app.userLogin))
+	router.Handler(http.MethodPost, "/user/login", dynamic.ThenFunc(app.userLoginPost))
+	router.Handler(http.MethodPost, "/user/logout", dynamic.ThenFunc(app.userLogoutPost))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 

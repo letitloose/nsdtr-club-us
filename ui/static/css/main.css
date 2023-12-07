@@ -45,3 +45,7 @@ footer {
 .error {
     color: red;
 }
+
+.flash {
+    color: yellow;
+}

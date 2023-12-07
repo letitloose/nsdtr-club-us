@@ -1,23 +1,29 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/letitloose/nsdtr-club-us/internal/models"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type application struct {
-	errorLog      *log.Logger
-	infoLog       *log.Logger
-	members       *models.MemberModel
-	templateCache map[string]*template.Template
+	errorLog       *log.Logger
+	infoLog        *log.Logger
+	members        *models.MemberModel
+	users          *models.UserModel
+	templateCache  map[string]*template.Template
+	sessionManager *scs.SessionManager
 }
 
 func main() {
@@ -27,31 +33,52 @@ func main() {
 
 	flag.Parse()
 
-	app := &application{}
-	app.infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	app.errorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	db, err := openDB(*dsn)
 	if err != nil {
-		app.errorLog.Fatal(err)
+		errorLog.Fatal(err)
 	}
 	defer db.Close()
 
-	app.templateCache, err = newTemplateCache()
+	templateCache, err := newTemplateCache()
 	if err != nil {
-		app.errorLog.Fatal(err)
+		errorLog.Fatal(err)
 	}
 
-	app.members = &models.MemberModel{DB: db}
+	members := &models.MemberModel{DB: db}
+	users := &models.UserModel{DB: db}
+
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
+	app := &application{
+		errorLog:       errorLog,
+		infoLog:        infoLog,
+		members:        members,
+		users:          users,
+		templateCache:  templateCache,
+		sessionManager: sessionManager,
+	}
+
+	tlsConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
 
 	srv := &http.Server{
-		Addr:     *addr,
-		ErrorLog: app.errorLog,
-		Handler:  app.routes(),
+		Addr:         *addr,
+		ErrorLog:     app.errorLog,
+		Handler:      app.routes(),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	app.infoLog.Print("Starting server on ", *addr)
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	app.errorLog.Fatal(err)
 }
 
