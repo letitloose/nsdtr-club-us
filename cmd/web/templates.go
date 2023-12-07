@@ -2,7 +2,6 @@ package main
 
 import (
 	"html/template"
-	"net/http"
 	"path/filepath"
 	"time"
 
@@ -10,11 +9,13 @@ import (
 )
 
 type templateData struct {
-	CurrentYear int
-	Member      *models.Member
-	Members     []*models.Member
-	Form        any
-	Flash       string
+	CurrentYear     int
+	Member          *models.Member
+	Members         []*models.Member
+	Form            any
+	Flash           string
+	IsAuthenticated bool
+	CSRFToken       string
 }
 
 // Create a humanDate function which returns a nicely formatted string
@@ -25,13 +26,6 @@ func humanDate(t time.Time) string {
 
 var functions = template.FuncMap{
 	"humanDate": humanDate,
-}
-
-func (app *application) newTemplateData(r *http.Request) *templateData {
-	return &templateData{
-		CurrentYear: time.Now().Year(),
-		Flash:       app.sessionManager.PopString(r.Context(), "flash"),
-	}
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {

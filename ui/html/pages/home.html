@@ -2,5 +2,9 @@
 
 {{define "main"}}
 <h2>Welcome to the Toller Club.</h2>
-<p>Would you like to see the <a href="/member">Member List</a>?</p>
+    {{if .IsAuthenticated}}
+        <p>Would you like to see the <a href="/member">Member List</a>?</p>
+    {{else}}
+        <p>Would you like to see the Member List?  Then please <a href="/user/login">Login.</a></p>
+    {{end}}
 {{end}}

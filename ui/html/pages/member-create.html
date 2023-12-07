@@ -2,6 +2,7 @@
 
 {{define "main"}}
 <form action='/member/create' method='POST'>
+    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
     <div>
         <label>First Name:</label>
         <input type='text' name='firstname' value='{{.Form.FirstName}}'>
