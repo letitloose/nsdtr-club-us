@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"html/template"
 	"net/http"
 	"runtime/debug"
 	"time"
@@ -35,15 +36,31 @@ func (app *application) notFound(w http.ResponseWriter) {
 }
 
 func (app *application) render(w http.ResponseWriter, status int, page string, data *templateData) {
-	ts, ok := app.templateCache[page]
-	if !ok {
-		err := fmt.Errorf("the template %s does not exist", page)
-		app.serverError(w, err)
-		return
+	var ts *template.Template
+	var ok bool
+	var err error
+
+	if !app.useTemplateCache {
+		app.infoLog.Println("not using template cache.")
+		ts, err = getTemplateSet(page)
+		if err != nil {
+			app.serverError(w, err)
+			err := fmt.Errorf("the template %s does not exist", page)
+			app.serverError(w, err)
+			return
+		}
+	} else {
+		app.infoLog.Println("using template cache.")
+		ts, ok = app.templateCache[page]
+		if !ok {
+			err := fmt.Errorf("the template %s does not exist", page)
+			app.serverError(w, err)
+			return
+		}
 	}
 
 	buf := new(bytes.Buffer)
-	err := ts.ExecuteTemplate(buf, "base", data)
+	err = ts.ExecuteTemplate(buf, "base", data)
 	if err != nil {
 		app.serverError(w, err)
 		return

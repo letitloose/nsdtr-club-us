@@ -1,6 +1,7 @@
 {{define "title"}}Login{{end}}
 
 {{define "main"}}
+<h1>User Login</h1>
 <form action='/user/login' method='POST' novalidate>
     <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
     {{range .Form.NonFieldErrors}}
@@ -24,4 +25,7 @@
         <input type='submit' value='Login'>
     </div>
 </form>
+<div>
+    <p>Need to create an account? <a href="/user/signup">Signup here!</a></p>
+</div>
 {{end}}

@@ -18,18 +18,20 @@ import (
 )
 
 type application struct {
-	errorLog       *log.Logger
-	infoLog        *log.Logger
-	members        *models.MemberModel
-	users          *models.UserModel
-	templateCache  map[string]*template.Template
-	sessionManager *scs.SessionManager
+	errorLog         *log.Logger
+	infoLog          *log.Logger
+	members          *models.MemberModel
+	users            *models.UserModel
+	templateCache    map[string]*template.Template
+	sessionManager   *scs.SessionManager
+	useTemplateCache bool
 }
 
 func main() {
 
 	addr := flag.String("addr", ":8080", "HTTP network address")
 	dsn := flag.String("dsn", "lougar:thewarrior@/nsdtrc?parseTime=true", "MySQL data source name")
+	useTemplateCache := flag.Bool("useTemplateCache", false, "MySQL data source name")
 
 	flag.Parse()
 
@@ -42,9 +44,13 @@ func main() {
 	}
 	defer db.Close()
 
-	templateCache, err := newTemplateCache()
-	if err != nil {
-		errorLog.Fatal(err)
+	var templateCache = map[string]*template.Template{}
+	infoLog.Println(*useTemplateCache)
+	if *useTemplateCache {
+		templateCache, err = newTemplateCache()
+		if err != nil {
+			errorLog.Fatal(err)
+		}
 	}
 
 	members := &models.MemberModel{DB: db}
@@ -55,12 +61,13 @@ func main() {
 	sessionManager.Lifetime = 12 * time.Hour
 
 	app := &application{
-		errorLog:       errorLog,
-		infoLog:        infoLog,
-		members:        members,
-		users:          users,
-		templateCache:  templateCache,
-		sessionManager: sessionManager,
+		errorLog:         errorLog,
+		infoLog:          infoLog,
+		members:          members,
+		users:            users,
+		templateCache:    templateCache,
+		sessionManager:   sessionManager,
+		useTemplateCache: *useTemplateCache,
 	}
 
 	tlsConfig := &tls.Config{

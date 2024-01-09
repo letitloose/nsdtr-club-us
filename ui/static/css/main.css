@@ -12,10 +12,48 @@ header img {
     width: 100%;
 }
 
-nav{
+.main-nav {
+    display: flex;
     background-color: lightyellow;
-    padding: .5em;
-    display: block;
+    margin-top: 0px;
+    list-style-type: none;
+    height: 40px;
+}
+
+.nav-button {
+    background-color: lightyellow;
+    border-style: none;
+}
+
+.nav-button {
+    background-color: lightyellow;
+    border-style: none;
+    padding: 10px;
+    margin: 0px;
+}
+
+.main-nav .nav-button:hover {
+    background-color: darkblue;
+    color: lightyellow;
+}
+
+.main-nav li {
+    padding-top: 10px;
+}
+
+.main-nav a {
+    text-decoration: none;
+    padding: 11px;
+}
+
+.main-nav a:hover {
+    background-color: darkblue;
+    color: lightyellow;
+}
+  
+.push {
+    margin-left: auto;
+    padding-right: 10px;
 }
 
 .content {
