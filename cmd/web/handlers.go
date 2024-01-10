@@ -24,7 +24,6 @@ type memberCreateForm struct {
 }
 
 type userSignupForm struct {
-	Name     string
 	Email    string
 	Password string
 	validator.Validator
@@ -167,13 +166,11 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	form := userSignupForm{
-		Name:     r.PostForm.Get("name"),
 		Email:    r.PostForm.Get("email"),
 		Password: r.PostForm.Get("password"),
 	}
 
 	// Validate the form contents using our helper functions.
-	form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
 	form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
 	form.CheckField(validator.ValidEmail(form.Email), "email", "You must enter a valid email: name@domain.ext")
 	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
@@ -186,7 +183,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.users.Insert(form.Name, form.Email, form.Password)
+	err = app.users.Insert(form.Email, form.Password)
 	if err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
 			form.AddFieldError("email", "Email address is already in use")
@@ -206,15 +203,15 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	body := fmt.Sprintf(
 		`<html>
 			<body>
-				<h1>Hello %s!</h1>
+				<h1>Hello!</h1>
 				<p>Please <a href="https://localhost:8080/user/activate?hash=%s">click here</a> to validate your email and activate your account.<p>
 			</body>
-		</html>`, form.Name, verificationHash)
+		</html>`, verificationHash)
 	err = app.email.SendEmail("Welcome to NSDTRC-USA Membership", "", body)
 	if err != nil {
 		app.serverError(w, err)
 	}
-	app.sessionManager.Put(r.Context(), "flash", "Your signup was successful. Please log in.")
+	app.sessionManager.Put(r.Context(), "flash", "Your signup was successful. Please check your email to activate your account.")
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 

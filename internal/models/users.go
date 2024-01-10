@@ -12,7 +12,6 @@ import (
 
 type User struct {
 	ID             int
-	Name           string
 	Email          string
 	HashedPassword []byte
 	Created        time.Time
@@ -22,7 +21,7 @@ type UserModel struct {
 	DB *sql.DB
 }
 
-func (m *UserModel) Insert(name, email, password string) error {
+func (m *UserModel) Insert(email, password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return err
@@ -33,10 +32,10 @@ func (m *UserModel) Insert(name, email, password string) error {
 		return err
 	}
 
-	statement := `INSERT INTO users (name, email, hashed_password, created, active, verification_hash)
-    VALUES(?, ?, ?, UTC_TIMESTAMP(), false, ?)`
+	statement := `INSERT INTO users (email, hashed_password, created, active, verification_hash)
+    VALUES(?, ?, UTC_TIMESTAMP(), false, ?)`
 
-	_, err = m.DB.Exec(statement, name, email, string(hashedPassword), string(verificationHash))
+	_, err = m.DB.Exec(statement, email, string(hashedPassword), string(verificationHash))
 	if err != nil {
 		var mySQLError *mysql.MySQLError
 		if errors.As(err, &mySQLError) {
