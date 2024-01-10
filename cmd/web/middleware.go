@@ -4,17 +4,14 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/justinas/nosurf"
 )
 
 func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Note: This is split across multiple lines for readability. You don't
-		// need to do this in your own code.
-		w.Header().Set("Content-Security-Policy",
-			"default-src 'self'; style-src 'self';")
-
+		w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self';")
 		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "deny")
@@ -26,8 +23,9 @@ func secureHeaders(next http.Handler) http.Handler {
 
 func (app *application) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		app.infoLog.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.URL.RequestURI())
-
+		if !strings.Contains(r.URL.RequestURI(), "/static") {
+			app.infoLog.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.URL.RequestURI())
+		}
 		next.ServeHTTP(w, r)
 	})
 }
@@ -65,6 +63,19 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	})
 }
 
+func (app *application) requireActive(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !app.isActive(r) {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+
+		w.Header().Add("Cache-Control", "no-store")
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func noSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 	csrfHandler.SetBaseCookie(http.Cookie{
@@ -93,17 +104,19 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		if exists {
 			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
 			r = r.WithContext(ctx)
+		} else {
+			next.ServeHTTP(w, r)
+		}
 
-			active, err := app.users.Active(id)
-			if err != nil {
-				app.serverError(w, err)
-				return
-			}
+		active, err := app.users.Active(id)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
 
-			if active {
-				ctx := context.WithValue(r.Context(), isActiveContextKey, true)
-				r = r.WithContext(ctx)
-			}
+		if active {
+			ctx := context.WithValue(r.Context(), isActiveContextKey, true)
+			r = r.WithContext(ctx)
 		}
 
 		// Call the next handler in the chain.

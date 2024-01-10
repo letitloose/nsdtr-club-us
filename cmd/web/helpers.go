@@ -42,7 +42,6 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 	var err error
 
 	if !app.useTemplateCache {
-		app.infoLog.Println("not using template cache.")
 		ts, err = getTemplateSet(page)
 		if err != nil {
 			app.serverError(w, err)

@@ -32,11 +32,14 @@ func (app *application) routes() http.Handler {
 
 	//protected routes
 	protected := dynamic.Append(app.requireAuthentication)
-	router.Handler(http.MethodGet, "/member/create", protected.ThenFunc(app.memberForm))
-	router.Handler(http.MethodPost, "/member/create", protected.ThenFunc(app.memberCreate))
-	router.Handler(http.MethodGet, "/member/view/:id", protected.ThenFunc(app.memberView))
-	router.Handler(http.MethodGet, "/member", protected.ThenFunc(app.memberList))
 	router.Handler(http.MethodPost, "/user/logout", protected.ThenFunc(app.userLogoutPost))
+
+	//active routes
+	active := dynamic.Append(app.requireActive)
+	router.Handler(http.MethodGet, "/member/create", active.ThenFunc(app.memberForm))
+	router.Handler(http.MethodPost, "/member/create", active.ThenFunc(app.memberCreate))
+	router.Handler(http.MethodGet, "/member/view/:id", active.ThenFunc(app.memberView))
+	router.Handler(http.MethodGet, "/member", active.ThenFunc(app.memberList))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 
