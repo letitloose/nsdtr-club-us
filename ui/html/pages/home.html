@@ -2,9 +2,13 @@
 
 {{define "main"}}
 <h2>Welcome to the Toller Club.</h2>
-    {{if .IsAuthenticated}}
+    {{if .IsActive}}
         <p>Would you like to see the <a href="/member">Member List</a>?</p>
     {{else}}
-        <p>Would you like to see the Member List?  Then please <a href="/user/login">Login.</a></p>
+        {{if .IsAuthenticated}}
+            <p>Please activate your account by clicking the link in the email you were sent upon signing up.</p>
+        {{else}}
+            <p>Would you like to see the Member List?  Then please <a href="/user/login">Login.</a></p>
+        {{end}}
     {{end}}
 {{end}}

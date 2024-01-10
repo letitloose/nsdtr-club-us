@@ -93,6 +93,17 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		if exists {
 			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
 			r = r.WithContext(ctx)
+
+			active, err := app.users.Active(id)
+			if err != nil {
+				app.serverError(w, err)
+				return
+			}
+
+			if active {
+				ctx := context.WithValue(r.Context(), isActiveContextKey, true)
+				r = r.WithContext(ctx)
+			}
 		}
 
 		// Call the next handler in the chain.

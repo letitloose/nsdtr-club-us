@@ -17,6 +17,7 @@ type templateData struct {
 	Form            any
 	Flash           string
 	IsAuthenticated bool
+	IsActive        bool
 	CSRFToken       string
 }
 

@@ -13,6 +13,7 @@ import (
 	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/letitloose/nsdtr-club-us/internal/models"
+	"github.com/letitloose/nsdtr-club-us/internal/services"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -25,13 +26,17 @@ type application struct {
 	templateCache    map[string]*template.Template
 	sessionManager   *scs.SessionManager
 	useTemplateCache bool
+	email            services.Email
 }
 
 func main() {
 
 	addr := flag.String("addr", ":8080", "HTTP network address")
 	dsn := flag.String("dsn", "lougar:thewarrior@/nsdtrc?parseTime=true", "MySQL data source name")
-	useTemplateCache := flag.Bool("useTemplateCache", false, "MySQL data source name")
+	emailUser := flag.String("emailUser", "test@gmail.com", "user account to send emails from")
+	emailPassword := flag.String("emailPassword", "not-real-password", "password to emailUser account")
+	emailHost := flag.String("emailHost", "smtp.gmail.com", "password to emailUser account")
+	useTemplateCache := flag.Bool("useTemplateCache", false, "When false, templates will render on each request.")
 
 	flag.Parse()
 
@@ -45,7 +50,7 @@ func main() {
 	defer db.Close()
 
 	var templateCache = map[string]*template.Template{}
-	infoLog.Println(*useTemplateCache)
+	infoLog.Println("Using Template Cache:", *useTemplateCache)
 	if *useTemplateCache {
 		templateCache, err = newTemplateCache()
 		if err != nil {
@@ -60,6 +65,12 @@ func main() {
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
 
+	email := services.Email{
+		Username: *emailUser,
+		Password: *emailPassword,
+		Host:     *emailHost,
+	}
+
 	app := &application{
 		errorLog:         errorLog,
 		infoLog:          infoLog,
@@ -68,6 +79,7 @@ func main() {
 		templateCache:    templateCache,
 		sessionManager:   sessionManager,
 		useTemplateCache: *useTemplateCache,
+		email:            email,
 	}
 
 	tlsConfig := &tls.Config{

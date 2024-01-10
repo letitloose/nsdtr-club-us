@@ -201,8 +201,20 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//user created successfully,  send an email with the validation link
+	verificationHash, err := app.users.GetVerificationHashByEmail(form.Email)
+	body := fmt.Sprintf(
+		`<html>
+			<body>
+				<h1>Hello %s!</h1>
+				<p>Please <a href="https://localhost:8080/user/activate?hash=%s">click here</a> to validate your email and activate your account.<p>
+			</body>
+		</html>`, form.Name, verificationHash)
+	err = app.email.SendEmail("Welcome to NSDTRC-USA Membership", "", body)
+	if err != nil {
+		app.serverError(w, err)
+	}
 	app.sessionManager.Put(r.Context(), "flash", "Your signup was successful. Please log in.")
-
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
@@ -219,8 +231,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form := userSignupForm{
-		Name:     r.PostForm.Get("name"),
+	form := userLoginForm{
 		Email:    r.PostForm.Get("email"),
 		Password: r.PostForm.Get("password"),
 	}
@@ -268,4 +279,29 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
 	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) userActivate(w http.ResponseWriter, r *http.Request) {
+	hash := r.URL.Query().Get("hash")
+	if hash == "" {
+		app.notFound(w)
+	}
+
+	userID, err := app.users.GetByVerificationHash(hash)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	err = app.users.Activate(userID)
+	if err != nil {
+		app.serverError(w, err)
+	}
+
+	data := app.newTemplateData(r)
+	app.render(w, http.StatusOK, "activated.html", data)
 }

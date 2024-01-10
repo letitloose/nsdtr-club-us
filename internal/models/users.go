@@ -28,10 +28,15 @@ func (m *UserModel) Insert(name, email, password string) error {
 		return err
 	}
 
-	statement := `INSERT INTO users (name, email, hashed_password, created)
-    VALUES(?, ?, ?, UTC_TIMESTAMP())`
+	verificationHash, err := bcrypt.GenerateFromPassword([]byte(email+password), 12)
+	if err != nil {
+		return err
+	}
 
-	_, err = m.DB.Exec(statement, name, email, string(hashedPassword))
+	statement := `INSERT INTO users (name, email, hashed_password, created, active, verification_hash)
+    VALUES(?, ?, ?, UTC_TIMESTAMP(), false, ?)`
+
+	_, err = m.DB.Exec(statement, name, email, string(hashedPassword), string(verificationHash))
 	if err != nil {
 		var mySQLError *mysql.MySQLError
 		if errors.As(err, &mySQLError) {
@@ -79,4 +84,53 @@ func (m *UserModel) Exists(id int) (bool, error) {
 
 	err := m.DB.QueryRow(stmt, id).Scan(&exists)
 	return exists, err
+}
+
+func (m *UserModel) Active(id int) (bool, error) {
+	var active bool
+
+	stmt := "SELECT active FROM users WHERE id = ?"
+
+	err := m.DB.QueryRow(stmt, id).Scan(&active)
+	return active, err
+}
+
+func (m *UserModel) GetByVerificationHash(hash string) (int, error) {
+	var id int
+
+	stmt := "SELECT id FROM users WHERE verification_hash = ?"
+
+	err := m.DB.QueryRow(stmt, hash).Scan(&id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, ErrNoRecord
+		} else {
+			return 0, err
+		}
+	}
+	return id, err
+}
+
+func (m *UserModel) GetVerificationHashByEmail(email string) (string, error) {
+	var hash string
+
+	stmt := "SELECT verification_hash FROM users WHERE email = ?"
+
+	err := m.DB.QueryRow(stmt, email).Scan(&hash)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return hash, ErrNoRecord
+		} else {
+			return hash, err
+		}
+	}
+	return hash, err
+}
+
+func (m *UserModel) Activate(id int) error {
+	statement := `UPDATE users SET active = 1 where id = ?`
+
+	_, err := m.DB.Exec(statement, id)
+
+	return err
 }

@@ -16,6 +16,7 @@ func (app *application) newTemplateData(r *http.Request) *templateData {
 		CurrentYear:     time.Now().Year(),
 		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r),
+		IsActive:        app.isActive(r),
 		CSRFToken:       nosurf.Token(r),
 	}
 }
@@ -78,4 +79,13 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 	}
 
 	return isAuthenticated
+}
+
+func (app *application) isActive(r *http.Request) bool {
+	isActive, ok := r.Context().Value(isActiveContextKey).(bool)
+	if !ok {
+		return false
+	}
+
+	return isActive
 }
