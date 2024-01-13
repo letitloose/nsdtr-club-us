@@ -95,7 +95,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		exists, err := app.users.Exists(id)
+		exists, err := app.userService.Exists(id)
 		if err != nil {
 			app.serverError(w, err)
 			return
@@ -108,7 +108,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 		}
 
-		active, err := app.users.Active(id)
+		active, err := app.userService.Active(id)
 		if err != nil {
 			app.serverError(w, err)
 			return

@@ -22,11 +22,11 @@ type application struct {
 	errorLog         *log.Logger
 	infoLog          *log.Logger
 	members          *models.MemberModel
-	users            *models.UserModel
+	userService      *services.UserService
 	templateCache    map[string]*template.Template
 	sessionManager   *scs.SessionManager
 	useTemplateCache bool
-	email            services.Email
+	email            *services.Email
 }
 
 func main() {
@@ -58,24 +58,25 @@ func main() {
 		}
 	}
 
-	members := &models.MemberModel{DB: db}
-	users := &models.UserModel{DB: db}
-
-	sessionManager := scs.New()
-	sessionManager.Store = mysqlstore.New(db)
-	sessionManager.Lifetime = 12 * time.Hour
-
-	email := services.Email{
+	email := &services.Email{
 		Username: *emailUser,
 		Password: *emailPassword,
 		Host:     *emailHost,
 	}
 
+	members := &models.MemberModel{DB: db}
+	users := &models.UserModel{DB: db}
+	userService := &services.UserService{UserModel: users, Email: email}
+
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	app := &application{
 		errorLog:         errorLog,
 		infoLog:          infoLog,
 		members:          members,
-		users:            users,
+		userService:      userService,
 		templateCache:    templateCache,
 		sessionManager:   sessionManager,
 		useTemplateCache: *useTemplateCache,
