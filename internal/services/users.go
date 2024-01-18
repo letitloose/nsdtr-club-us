@@ -18,7 +18,7 @@ type UserForm struct {
 	validator.Validator `form:"-"`
 }
 
-func (service UserService) InsertUser(uf *UserForm) error {
+func (service *UserService) InsertUser(uf *UserForm) error {
 
 	// Validate the form contents using our helper functions.
 	uf.CheckField(validator.NotBlank(uf.Email), "email", "This field cannot be blank")
@@ -52,7 +52,7 @@ func (service UserService) InsertUser(uf *UserForm) error {
 	return nil
 }
 
-func (service UserService) AuthenticateUser(uf *UserForm) (int, error) {
+func (service *UserService) AuthenticateUser(uf *UserForm) (int, error) {
 
 	uf.CheckField(validator.NotBlank(uf.Email), "email", "Please enter your email to login")
 
@@ -68,7 +68,7 @@ func (service UserService) AuthenticateUser(uf *UserForm) (int, error) {
 	return id, nil
 }
 
-func (service UserService) ActivateUser(hash string) error {
+func (service *UserService) ActivateUser(hash string) error {
 	userID, err := service.GetByVerificationHash(hash)
 	if err != nil {
 		return err

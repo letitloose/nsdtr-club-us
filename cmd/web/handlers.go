@@ -10,19 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/letitloose/nsdtr-club-us/internal/models"
 	"github.com/letitloose/nsdtr-club-us/internal/services"
-	"github.com/letitloose/nsdtr-club-us/internal/validator"
 )
-
-type memberCreateForm struct {
-	FirstName   string
-	LastName    string
-	PhoneNumber string
-	Email       string
-	Website     string
-	Region      int
-	JoinedDate  string
-	validator.Validator
-}
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -39,7 +27,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 func (app *application) memberForm(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 
-	data.Form = memberCreateForm{
+	data.Form = services.MemberForm{
 		JoinedDate: time.Now().Format("2006-01-02"),
 	}
 
@@ -59,7 +47,7 @@ func (app *application) memberCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form := memberCreateForm{
+	form := &services.MemberForm{
 		FirstName:   r.PostForm.Get("firstname"),
 		LastName:    r.PostForm.Get("lastname"),
 		PhoneNumber: r.PostForm.Get("phonenumber"),
@@ -69,28 +57,16 @@ func (app *application) memberCreate(w http.ResponseWriter, r *http.Request) {
 		JoinedDate:  r.PostForm.Get("joindate"),
 	}
 
-	//validate
-	form.CheckField(validator.NotBlank(form.FirstName), "firstname", "You must enter a first name.")
-	form.CheckField(validator.NotBlank(form.LastName), "lastname", "You must enter a last name.")
-	form.CheckField(validator.ValidEmail(form.Email), "email", "You must enter a valid email: name@domain.ext")
-
-	if !form.Valid() {
-		data := app.newTemplateData(r)
-		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "member-create.html", data)
-		return
-	}
-
-	joined, err := time.Parse("2006-01-02", r.PostForm.Get("joindate"))
+	id, err := app.memberService.CreateMember(form)
 	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
-	id, err := app.members.Insert(form.FirstName, form.LastName, form.PhoneNumber, form.Email, form.Website, form.Region, joined)
-	if err != nil {
-		app.serverError(w, err)
-		return
+		if errors.Is(err, models.ErrBadData) {
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, http.StatusUnprocessableEntity, "member-create.html", data)
+			return
+		} else {
+			app.serverError(w, err)
+		}
 	}
 
 	//put success message in flash
@@ -110,7 +86,7 @@ func (app *application) memberView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	member, err := app.members.Get(id)
+	member, err := app.memberService.Get(id)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.notFound(w)
@@ -127,7 +103,7 @@ func (app *application) memberView(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) memberList(w http.ResponseWriter, r *http.Request) {
 
-	members, err := app.members.List()
+	members, err := app.memberService.List()
 	if err != nil {
 		app.serverError(w, err)
 		return

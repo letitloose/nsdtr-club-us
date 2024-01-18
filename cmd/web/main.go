@@ -21,7 +21,7 @@ import (
 type application struct {
 	errorLog         *log.Logger
 	infoLog          *log.Logger
-	members          *models.MemberModel
+	memberService    *services.MemberService
 	userService      *services.UserService
 	templateCache    map[string]*template.Template
 	sessionManager   *scs.SessionManager
@@ -65,6 +65,7 @@ func main() {
 	}
 
 	members := &models.MemberModel{DB: db}
+	memberService := &services.MemberService{MemberModel: members}
 	users := &models.UserModel{DB: db}
 	userService := &services.UserService{UserModel: users, Email: email}
 
@@ -75,7 +76,7 @@ func main() {
 	app := &application{
 		errorLog:         errorLog,
 		infoLog:          infoLog,
-		members:          members,
+		memberService:    memberService,
 		userService:      userService,
 		templateCache:    templateCache,
 		sessionManager:   sessionManager,
