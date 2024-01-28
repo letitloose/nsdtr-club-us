@@ -10,9 +10,9 @@ type Member struct {
 	ID          int
 	FirstName   string
 	LastName    string
-	PhoneNumber string
-	Email       string
-	Website     string
+	PhoneNumber sql.NullString
+	Email       sql.NullString
+	Website     sql.NullString
 	Region      int
 	CreatedDate time.Time
 	JoinedDate  sql.NullTime

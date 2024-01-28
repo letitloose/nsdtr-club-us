@@ -1,8 +1,10 @@
 package services
 
 import (
+	"errors"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/letitloose/nsdtr-club-us/internal/models"
 	"github.com/letitloose/nsdtr-club-us/internal/validator"
 )
@@ -20,6 +22,7 @@ type MemberForm struct {
 
 type MemberService struct {
 	*models.MemberModel
+	Legacy *models.LegacyModel
 	*Email
 }
 
@@ -40,4 +43,27 @@ func (service *MemberService) CreateMember(mf *MemberForm) (int, error) {
 	}
 
 	return service.Insert(mf.FirstName, mf.LastName, mf.PhoneNumber, mf.Email, mf.Website, mf.Region, joined)
+}
+
+func (service *MemberService) MigrateLegacyMembers() error {
+
+	legacyMembers, err := service.Legacy.List()
+	if err != nil {
+		return err
+	}
+
+	for _, member := range legacyMembers {
+		_, err := service.Insert(member.FirstName, member.LastName, member.PhoneNumber.String, member.Email.String, member.Website.String, member.Region, member.JoinedDate.Time)
+		if err != nil {
+			var mySQLError *mysql.MySQLError
+			if errors.As(err, &mySQLError) {
+				if mySQLError.Number == 1062 {
+					continue
+				} else {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }

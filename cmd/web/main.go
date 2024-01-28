@@ -33,6 +33,7 @@ func main() {
 
 	addr := flag.String("addr", ":8080", "HTTP network address")
 	dsn := flag.String("dsn", "lougar:thewarrior@/nsdtrc?parseTime=true", "MySQL data source name")
+	legacyDSN := flag.String("legacydsn", "lougar:thewarrior@/nsdtrc_members?parseTime=true", "MySQL data source name")
 	emailUser := flag.String("emailUser", "test@gmail.com", "user account to send emails from")
 	emailPassword := flag.String("emailPassword", "not-real-password", "password to emailUser account")
 	emailHost := flag.String("emailHost", "smtp.gmail.com", "password to emailUser account")
@@ -48,6 +49,12 @@ func main() {
 		errorLog.Fatal(err)
 	}
 	defer db.Close()
+
+	legacyDB, err := openDB(*legacyDSN)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	defer legacyDB.Close()
 
 	var templateCache = map[string]*template.Template{}
 	infoLog.Println("Using Template Cache:", *useTemplateCache)
@@ -65,10 +72,10 @@ func main() {
 	}
 
 	members := &models.MemberModel{DB: db}
-	memberService := &services.MemberService{MemberModel: members}
+	legacyModel := &models.LegacyModel{DB: legacyDB}
+	memberService := &services.MemberService{MemberModel: members, Legacy: legacyModel}
 	users := &models.UserModel{DB: db}
 	userService := &services.UserService{UserModel: users, Email: email}
-
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
