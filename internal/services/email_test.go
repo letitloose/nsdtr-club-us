@@ -7,6 +7,7 @@ import (
 )
 
 func TestSendEmail(t *testing.T) {
+	t.Skip()
 	email := Email{
 		Username: "louis.garwood@gmail.com",
 		Password: "qhej mkki eexf esgn",

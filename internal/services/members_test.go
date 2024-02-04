@@ -8,10 +8,7 @@ import (
 )
 
 func TestMigrateLegacyMembers(t *testing.T) {
-	db, err := sql.Open("mysql", "lougar:thewarrior@/nsdtrc?parseTime=true")
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := models.NewTestDB(t)
 
 	legacydb, err := sql.Open("mysql", "lougar:thewarrior@/nsdtrc_members?parseTime=true")
 	if err != nil {

@@ -16,6 +16,7 @@ type Member struct {
 	Region      int
 	CreatedDate time.Time
 	JoinedDate  sql.NullTime
+	Address     *Address
 }
 
 type MemberModel struct {
@@ -43,15 +44,15 @@ func (m *MemberModel) Insert(firstname, lastname, phonenumber, email, website st
 
 func (m *MemberModel) Get(id int) (*Member, error) {
 
-	stmt := `select id, firstname, lastname, phonenumber, email, website, region, created, joined 
+	stmt := `select id, firstname, lastname, phonenumber, email, website, region, created, joined, addressID 
 		from members 
     	where id = ?`
 
 	result := m.DB.QueryRow(stmt, id)
 
-	member := &Member{}
+	member := &Member{Address: &Address{}}
 	err := result.Scan(&member.ID, &member.FirstName, &member.LastName, &member.PhoneNumber,
-		&member.Email, &member.Website, &member.Region, &member.CreatedDate, &member.JoinedDate)
+		&member.Email, &member.Website, &member.Region, &member.CreatedDate, &member.JoinedDate, &member.Address.ID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord
@@ -87,4 +88,13 @@ func (m *MemberModel) List() ([]*Member, error) {
 	}
 
 	return members, nil
+}
+
+func (m *MemberModel) AddAddress(memberID, addressID int) error {
+
+	stmt := `UPDATE members set addressID = ? where id = ?`
+
+	_, err := m.DB.Exec(stmt, addressID, memberID)
+
+	return err
 }

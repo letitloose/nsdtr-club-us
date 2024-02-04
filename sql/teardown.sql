@@ -1,4 +1,9 @@
+
 drop table users;
 drop table sessions;
+
 drop table members;
-drop schema nsdtrc;
+drop table address;
+drop table countryCode;
+drop table stateCode;
+

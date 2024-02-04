@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -53,7 +54,7 @@ func (service *MemberService) MigrateLegacyMembers() error {
 	}
 
 	for _, member := range legacyMembers {
-		_, err := service.Insert(member.FirstName, member.LastName, member.PhoneNumber.String, member.Email.String, member.Website.String, member.Region, member.JoinedDate.Time)
+		memberID, err := service.Insert(member.FirstName, member.LastName, member.PhoneNumber.String, member.Email.String, member.Website.String, member.Region, member.JoinedDate.Time)
 		if err != nil {
 			var mySQLError *mysql.MySQLError
 			if errors.As(err, &mySQLError) {
@@ -64,6 +65,47 @@ func (service *MemberService) MigrateLegacyMembers() error {
 				}
 			}
 		}
+
+		//massage countries
+		if member.Address.CountryCode.String == "CANADA" {
+			member.Address.CountryCode.String = "CAN"
+		}
+		if strings.ToUpper(member.Address.CountryCode.String) == "GERMANY" {
+			member.Address.CountryCode.String = "GER"
+		}
+		if member.Address.CountryCode.String == "UNITED KINGDOM" {
+			member.Address.CountryCode.String = "UK"
+		}
+		if member.Address.CountryCode.String == "AUSTRALIA" {
+			member.Address.CountryCode.String = "AUS"
+		}
+		if member.Address.CountryCode.String == "SWEDEN" {
+			member.Address.CountryCode.String = "SWE"
+		}
+		if member.Address.CountryCode.String == "SWITZERLAND" {
+			member.Address.CountryCode.String = "SWI"
+		}
+		if member.Address.CountryCode.String == "FINLAND" {
+			member.Address.CountryCode.String = "FIN"
+		}
+		if strings.ToUpper(member.Address.CountryCode.String) == "NEW ZEALAND" {
+			member.Address.CountryCode.String = "NZ"
+		}
+		err = service.AddMemberAddress(memberID, member.Address)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
+}
+
+func (service *MemberService) AddMemberAddress(memberID int, address *models.Address) error {
+
+	am := &models.AddressModel{DB: service.DB}
+	addressID, err := am.Insert(address)
+	if err != nil {
+		return err
+	}
+
+	return service.AddAddress(memberID, addressID)
 }

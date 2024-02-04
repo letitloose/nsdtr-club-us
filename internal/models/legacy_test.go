@@ -5,16 +5,7 @@ import (
 	"testing"
 )
 
-func openDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return nil, err
-	}
-	if err = db.Ping(); err != nil {
-		return nil, err
-	}
-	return db, nil
-}
+
 
 func TestLegacyMemberList(t *testing.T) {
 	db, err := sql.Open("mysql", "lougar:thewarrior@/nsdtrc_members?parseTime=true")
