@@ -30,7 +30,7 @@ func (service *UserService) InsertUser(uf *UserForm) error {
 		return models.ErrBadData
 	}
 
-	err := service.Insert(uf.Email, uf.Password)
+	_, err := service.Insert(uf.Email, uf.Password)
 	if err != nil {
 		return err
 	}

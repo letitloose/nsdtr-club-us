@@ -21,32 +21,38 @@ type UserModel struct {
 	DB *sql.DB
 }
 
-func (m *UserModel) Insert(email, password string) error {
+func (m *UserModel) Insert(email, password string) (int, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	verificationHash, err := bcrypt.GenerateFromPassword([]byte(email+password), 12)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	statement := `INSERT INTO users (email, hashed_password, created, active, verification_hash)
     VALUES(?, ?, UTC_TIMESTAMP(), false, ?)`
 
-	_, err = m.DB.Exec(statement, email, string(hashedPassword), string(verificationHash))
+	result, err := m.DB.Exec(statement, email, string(hashedPassword), string(verificationHash))
 	if err != nil {
 		var mySQLError *mysql.MySQLError
 		if errors.As(err, &mySQLError) {
 			if mySQLError.Number == 1062 && strings.Contains(mySQLError.Message, "email") {
-				return ErrDuplicateEmail
+				return 0, ErrDuplicateEmail
 			}
 		}
-		return err
+		return 0, err
 	}
 
-	return nil
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(id), nil
+
 }
 
 func (m *UserModel) Authenticate(email, password string) (int, error) {

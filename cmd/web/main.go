@@ -32,12 +32,13 @@ type application struct {
 func main() {
 
 	addr := flag.String("addr", ":8080", "HTTP network address")
-	dsn := flag.String("dsn", "lougar:thewarrior@/nsdtrc?parseTime=true", "MySQL data source name")
+	dsn := flag.String("dsn", "lougar:thewarrior@/nsdtrc?parseTime=true&multiStatements=true", "MySQL data source name")
 	legacyDSN := flag.String("legacydsn", "lougar:thewarrior@/nsdtrc_members?parseTime=true", "MySQL data source name")
 	emailUser := flag.String("emailUser", "test@gmail.com", "user account to send emails from")
 	emailPassword := flag.String("emailPassword", "not-real-password", "password to emailUser account")
 	emailHost := flag.String("emailHost", "smtp.gmail.com", "password to emailUser account")
 	useTemplateCache := flag.Bool("useTemplateCache", false, "When false, templates will render on each request.")
+	reset := flag.Bool("reset", false, "add flag to reset the database.")
 
 	flag.Parse()
 
@@ -91,6 +92,13 @@ func main() {
 		email:            email,
 	}
 
+	if *reset {
+		err = app.reset()
+		if err != nil {
+			errorLog.Fatal(err)
+		}
+	}
+
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 	}
@@ -119,4 +127,52 @@ func openDB(dsn string) (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func (app *application) reset() error {
+
+	script, err := os.ReadFile("./sql/teardown.sql")
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+	_, err = app.memberService.DB.Exec(string(script))
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	script, err = os.ReadFile("./sql/setup.sql")
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+	_, err = app.memberService.DB.Exec(string(script))
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	// Read the setup SQL script from file and execute the statements.
+	script, err = os.ReadFile("./sql/nsdtrc-data-load.sql")
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+	_, err = app.memberService.DB.Exec(string(script))
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	id, err := app.userService.Insert("louis.garwood@gmail.com", "theocho")
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	err = app.userService.Activate(id)
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	err = app.memberService.MigrateLegacyMembers()
+	if err != nil {
+		app.errorLog.Fatal(err)
+	}
+
+	return nil
 }

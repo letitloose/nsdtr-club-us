@@ -9,8 +9,12 @@
             <p class="datafield" id="email"> {{.Email}}</p>
             <label class="label" for="phone">Phone:</label>
             <p class="datafield" id="phone"> {{.PhoneNumber}}</p>
+
+            {{if ne .Website.String ""}}
             <label class="label" for="website">Website:</label>
-            <p class="datafield" id="website"> <a href="https://{{.Website}}">{{.Website}}</a></p>
+            <p class="datafield" id="website"> <a href="https://{{.Website.String}}">{{.Website.String}}</a> </p>
+            {{end}}
+
             <label class="label" for="region">Region:</label>
             <p class="datafield" id="region"> {{.Region}}</p>
             <label class="label" for="created">Created Date:</label>
@@ -20,6 +24,11 @@
             <label class="label" for="joined">Joined Date:</label>
             <p class="datafield" id="joined"> {{humanDate .JoinedDate.Time}}</p>
             {{end}}
+
+            <label class="label" for="address">Address:</label>
+            <p class="datafield" id="address"> {{.AddressID}}</p>
+
+            
             <a href="/member"><- Return Member List</a>
         </div>
     {{end}}
