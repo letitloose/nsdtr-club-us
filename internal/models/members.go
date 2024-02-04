@@ -16,7 +16,7 @@ type Member struct {
 	Region      int
 	CreatedDate time.Time
 	JoinedDate  sql.NullTime
-	Address     *Address
+	AddressID   sql.NullInt16
 }
 
 type MemberModel struct {
@@ -50,9 +50,9 @@ func (m *MemberModel) Get(id int) (*Member, error) {
 
 	result := m.DB.QueryRow(stmt, id)
 
-	member := &Member{Address: &Address{}}
+	member := &Member{}
 	err := result.Scan(&member.ID, &member.FirstName, &member.LastName, &member.PhoneNumber,
-		&member.Email, &member.Website, &member.Region, &member.CreatedDate, &member.JoinedDate, &member.Address.ID)
+		&member.Email, &member.Website, &member.Region, &member.CreatedDate, &member.JoinedDate, &member.AddressID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord

@@ -30,8 +30,8 @@ func TestAddAddress(t *testing.T) {
 	}
 
 	am := AddressModel{DB: db}
-	member.Address = &Address{City: sql.NullString{String: "NY", Valid: true}, StateProvince: sql.NullString{String: "NY", Valid: true}, CountryCode: sql.NullString{String: "USA", Valid: true}}
-	addressID, err := am.Insert(member.Address)
+	address := &Address{City: sql.NullString{String: "NY", Valid: true}, StateProvince: sql.NullString{String: "NY", Valid: true}, CountryCode: sql.NullString{String: "USA", Valid: true}}
+	addressID, err := am.Insert(address)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func TestAddAddress(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	address, err := am.Get(member.Address.ID)
+	address, err = am.Get(int(member.AddressID.Int16))
 	if err != nil {
 		t.Fatal(err)
 	}
