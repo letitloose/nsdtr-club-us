@@ -86,7 +86,7 @@ func (app *application) memberView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	member, err := app.memberService.Get(id)
+	member, err := app.memberService.GetMemberProfile(id)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {
 			app.notFound(w)

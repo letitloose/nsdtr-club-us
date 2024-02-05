@@ -55,3 +55,36 @@ func TestAddAddress(t *testing.T) {
 		t.Fatal("wrong address returned")
 	}
 }
+
+func TestGetMemberProfile(t *testing.T) {
+	db := NewTestDB(t)
+
+	mm := MemberModel{DB: db}
+
+	member := &Member{FirstName: "Lou", LastName: "Garwood", Region: 1}
+	memberID, err := mm.Insert(member.FirstName, member.LastName, "", "", "", member.Region, time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	am := AddressModel{DB: db}
+	address := &Address{City: sql.NullString{String: "Troy", Valid: true}, StateProvince: sql.NullString{String: "NY", Valid: true}, CountryCode: sql.NullString{String: "USA", Valid: true}}
+	addressID, err := am.Insert(address)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = mm.AddAddress(memberID, addressID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	memberProfile, err := mm.GetMemberProfile(memberID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if memberProfile.City.String != "Troy" {
+		t.Fatal("wrong address returned")
+	}
+}

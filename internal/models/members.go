@@ -19,6 +19,11 @@ type Member struct {
 	AddressID   sql.NullInt16
 }
 
+type MemberProfile struct {
+	*Member
+	*Address
+}
+
 type MemberModel struct {
 	DB *sql.DB
 }
@@ -97,4 +102,29 @@ func (m *MemberModel) AddAddress(memberID, addressID int) error {
 	_, err := m.DB.Exec(stmt, addressID, memberID)
 
 	return err
+}
+
+func (m *MemberModel) GetMemberProfile(id int) (*MemberProfile, error) {
+
+	stmt := `select m.id, m.firstname, m.lastname, m.phonenumber, m.email, m.website, m.region, m.created, m.joined, 
+				a.address1, a.address2, a.city, a.stateProvince, a.zipCode, a.country
+		from members m
+		join address a on a.id = m.addressID
+    	where m.id = ?`
+
+	result := m.DB.QueryRow(stmt, id)
+
+	member := &MemberProfile{Member: &Member{}, Address: &Address{}}
+
+	err := result.Scan(&member.Member.ID, &member.FirstName, &member.LastName, &member.PhoneNumber,
+		&member.Email, &member.Website, &member.Region, &member.JoinedDate, &member.CreatedDate, &member.Address1,
+		&member.Address2, &member.City, &member.StateProvince, &member.ZipCode, &member.CountryCode)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+	return member, nil
 }

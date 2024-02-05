@@ -1,4 +1,4 @@
-{{define "title"}}Member #{{.Member.ID}}{{end}}
+{{define "title"}}Member #{{.Member.Member.ID}}{{end}}
 
 {{define "main"}}
     {{with .Member}}
@@ -26,7 +26,7 @@
             {{end}}
 
             <label class="label" for="address">Address:</label>
-            <p class="datafield" id="address"> {{.AddressID}}</p>
+            <p class="datafield" id="address"> {{.Address1}} {{.Address2}} {{.City}} {{.StateProvince}}, {{.ZipCode}}</p>
 
             
             <a href="/member"><- Return Member List</a>

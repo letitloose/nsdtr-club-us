@@ -12,7 +12,7 @@ import (
 
 type templateData struct {
 	CurrentYear     int
-	Member          *models.Member
+	Member          *models.MemberProfile
 	Members         []*models.Member
 	Form            any
 	Flash           string
