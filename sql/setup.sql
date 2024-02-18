@@ -38,11 +38,12 @@ CREATE TABLE address (
 ALTER TABLE address ADD FOREIGN KEY (stateProvince) REFERENCES stateCode(code);
 ALTER TABLE address ADD FOREIGN KEY (country) REFERENCES countryCode(code);
 
--- drop table members;
 Create table members (
 	id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     firstname VARCHAR(100) NOT NULL,
     lastname VARCHAR(100) NOT NULL,
+    jointfirstname VARCHAR(100),
+    jointlastname VARCHAR(100),
     phonenumber VARCHAR(40),
 	addressID INTEGER,    
     email VARCHAR(100) UNIQUE,
@@ -54,5 +55,25 @@ Create table members (
 
 ALTER TABLE members ADD FOREIGN KEY (addressID) REFERENCES address(id);
 
+CREATE TABLE dueSchedule (
+    code VARCHAR(5) UNIQUE,
+    display VARCHAR(100),
+    cost FLOAT,
+    year INTEGER
+);
 
+CREATE TABLE membership (
+	id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	memberID INTEGER NOT NULL,
+	year INTEGER NOT NULL
+);
 
+ALTER TABLE membership ADD FOREIGN KEY (memberID) REFERENCES members(id);
+
+CREATE TABLE membershipItem (
+	membershipID INTEGER NOT NULL,
+	itemCode VARCHAR(5),
+	amountPaid FLOAT
+);
+
+ALTER TABLE membershipItem ADD FOREIGN KEY (membershipID) REFERENCES membership(id);

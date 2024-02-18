@@ -11,13 +11,15 @@ import (
 )
 
 type MemberForm struct {
-	FirstName   string
-	LastName    string
-	PhoneNumber string
-	Email       string
-	Website     string
-	Region      int
-	JoinedDate  string
+	FirstName      string
+	LastName       string
+	JointFirstName string
+	JointLastName  string
+	PhoneNumber    string
+	Email          string
+	Website        string
+	Region         int
+	JoinedDate     string
 	validator.Validator
 }
 
@@ -43,7 +45,7 @@ func (service *MemberService) CreateMember(mf *MemberForm) (int, error) {
 		return 0, err
 	}
 
-	return service.Insert(mf.FirstName, mf.LastName, mf.PhoneNumber, mf.Email, mf.Website, mf.Region, joined)
+	return service.Insert(mf.FirstName, mf.LastName, mf.JointFirstName, mf.JointLastName, mf.PhoneNumber, mf.Email, mf.Website, mf.Region, joined)
 }
 
 func (service *MemberService) MigrateLegacyMembers() error {
@@ -54,7 +56,7 @@ func (service *MemberService) MigrateLegacyMembers() error {
 	}
 
 	for _, member := range legacyMembers {
-		memberID, err := service.Insert(member.FirstName, member.LastName, member.PhoneNumber.String, member.Email.String, member.Website.String, member.Region, member.JoinedDate.Time)
+		memberID, err := service.Insert(member.FirstName, member.LastName, member.JointFirstName.String, member.JointLastName.String, member.PhoneNumber.String, member.Email.String, member.Website.String, member.Region, member.JoinedDate.Time)
 		if err != nil {
 			var mySQLError *mysql.MySQLError
 			if errors.As(err, &mySQLError) {

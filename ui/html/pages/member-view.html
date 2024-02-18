@@ -5,12 +5,23 @@
         <div class='content'>
             <label class="label" for="name">Name:</label>
             <p class="datafield" id="name"> {{.FirstName}} {{.LastName}}</p>
+            
+            {{if ne .JointLastName.String  ""}}
+            <label class="label" for="email">Joint Member:</label>
+            <p class="datafield" id="email"> {{.JointFirstName.String}} {{.JointLastName.String}}</p>
+            {{end}}
+            
+            {{if .Email.Valid}}
             <label class="label" for="email">Email:</label>
-            <p class="datafield" id="email"> {{.Email}}</p>
-            <label class="label" for="phone">Phone:</label>
-            <p class="datafield" id="phone"> {{.PhoneNumber}}</p>
+            <p class="datafield" id="email"> {{.Email.String}}</p>
+            {{end}}
 
-            {{if ne .Website.String ""}}
+            {{if .PhoneNumber.Valid}}
+            <label class="label" for="phone">Phone:</label>
+            <p class="datafield" id="phone"> {{.PhoneNumber.String}}</p>
+            {{end}}
+
+            {{if .Website.Valid}}
             <label class="label" for="website">Website:</label>
             <p class="datafield" id="website"> <a href="https://{{.Website.String}}">{{.Website.String}}</a> </p>
             {{end}}
@@ -26,7 +37,7 @@
             {{end}}
 
             <label class="label" for="address">Address:</label>
-            <p class="datafield" id="address"> {{.Address1}} {{.Address2}} {{.City}} {{.StateProvince}}, {{.ZipCode}}</p>
+            <p class="datafield" id="address"> {{.Address1}} {{.Address2.String}} {{.City.String}}, {{.StateProvince.String}} {{.ZipCode.String}}</p>
 
             
             <a href="/member"><- Return Member List</a>

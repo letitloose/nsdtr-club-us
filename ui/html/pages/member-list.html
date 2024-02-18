@@ -12,7 +12,7 @@
             {{range .Members}}
                 <tr>
                     <td><a href="/member/view/{{.ID}}">{{.FirstName}} {{.LastName}}</td>
-                    <td>{{.Email}}</td>
+                    <td>{{.Email.String}}</td>
                     <td>{{.Region}}</td>
                     <td>{{humanDate .CreatedDate}}</td>
                 </tr>

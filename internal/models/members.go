@@ -7,16 +7,18 @@ import (
 )
 
 type Member struct {
-	ID          int
-	FirstName   string
-	LastName    string
-	PhoneNumber sql.NullString
-	Email       sql.NullString
-	Website     sql.NullString
-	Region      int
-	CreatedDate time.Time
-	JoinedDate  sql.NullTime
-	AddressID   sql.NullInt16
+	ID             int
+	FirstName      string
+	LastName       string
+	JointFirstName sql.NullString
+	JointLastName  sql.NullString
+	PhoneNumber    sql.NullString
+	Email          sql.NullString
+	Website        sql.NullString
+	Region         int
+	CreatedDate    time.Time
+	JoinedDate     sql.NullTime
+	AddressID      sql.NullInt16
 }
 
 type MemberProfile struct {
@@ -28,12 +30,12 @@ type MemberModel struct {
 	DB *sql.DB
 }
 
-func (m *MemberModel) Insert(firstname, lastname, phonenumber, email, website string, region int, joined time.Time) (int, error) {
+func (m *MemberModel) Insert(firstname, lastname, jointfirstname, jointlastname, phonenumber, email, website string, region int, joined time.Time) (int, error) {
 
-	stmt := `INSERT INTO members (firstname, lastname, phonenumber, email, website, region, created, joined)
-    VALUES(?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), ?)`
+	stmt := `INSERT INTO members (firstname, lastname, jointfirstname, jointlastname, phonenumber, email, website, region, created, joined)
+    VALUES(?, ?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), ?)`
 
-	result, err := m.DB.Exec(stmt, firstname, lastname, phonenumber, email, website, region, joined)
+	result, err := m.DB.Exec(stmt, firstname, lastname, jointfirstname, jointlastname, phonenumber, email, website, region, joined)
 	if err != nil {
 		return 0, err
 	}
@@ -49,14 +51,14 @@ func (m *MemberModel) Insert(firstname, lastname, phonenumber, email, website st
 
 func (m *MemberModel) Get(id int) (*Member, error) {
 
-	stmt := `select id, firstname, lastname, phonenumber, email, website, region, created, joined, addressID 
+	stmt := `select id, firstname, lastname, jointfirstname, jointlastname, phonenumber, email, website, region, created, joined, addressID 
 		from members 
     	where id = ?`
 
 	result := m.DB.QueryRow(stmt, id)
 
 	member := &Member{}
-	err := result.Scan(&member.ID, &member.FirstName, &member.LastName, &member.PhoneNumber,
+	err := result.Scan(&member.ID, &member.FirstName, &member.LastName, &member.JointFirstName, &member.JointLastName, &member.PhoneNumber,
 		&member.Email, &member.Website, &member.Region, &member.CreatedDate, &member.JoinedDate, &member.AddressID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -106,7 +108,7 @@ func (m *MemberModel) AddAddress(memberID, addressID int) error {
 
 func (m *MemberModel) GetMemberProfile(id int) (*MemberProfile, error) {
 
-	stmt := `select m.id, m.firstname, m.lastname, m.phonenumber, m.email, m.website, m.region, m.created, m.joined, 
+	stmt := `select m.id, m.firstname, m.lastname, m.jointfirstname, m.jointlastname, m.phonenumber, m.email, m.website, m.region, m.created, m.joined, 
 				a.address1, a.address2, a.city, a.stateProvince, a.zipCode, a.country
 		from members m
 		join address a on a.id = m.addressID
@@ -116,7 +118,7 @@ func (m *MemberModel) GetMemberProfile(id int) (*MemberProfile, error) {
 
 	member := &MemberProfile{Member: &Member{}, Address: &Address{}}
 
-	err := result.Scan(&member.Member.ID, &member.FirstName, &member.LastName, &member.PhoneNumber,
+	err := result.Scan(&member.Member.ID, &member.FirstName, &member.LastName, &member.JointFirstName, &member.JointLastName, &member.PhoneNumber,
 		&member.Email, &member.Website, &member.Region, &member.JoinedDate, &member.CreatedDate, &member.Address1,
 		&member.Address2, &member.City, &member.StateProvince, &member.ZipCode, &member.CountryCode)
 	if err != nil {

@@ -63,12 +63,12 @@ header img {
 }
 
 footer {
+    display: flex;
     padding: .5em;
     background-color: lightyellow;
     width: 100%;
-    position: absolute;
-    bottom: 0;
     text-align: center;
+    margin-top: auto;
 }
 
 .label {

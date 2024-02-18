@@ -12,7 +12,7 @@ func TestInsertMember(t *testing.T) {
 	mm := MemberModel{DB: db}
 
 	member := &Member{}
-	_, err := mm.Insert(member.FirstName, member.LastName, "", "", "", member.Region, time.Now())
+	_, err := mm.Insert(member.FirstName, member.LastName, "", "", "", "", "", member.Region, time.Now())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -24,7 +24,7 @@ func TestAddAddress(t *testing.T) {
 	mm := MemberModel{DB: db}
 
 	member := &Member{}
-	memberID, err := mm.Insert(member.FirstName, member.LastName, "", "", "", member.Region, time.Now())
+	memberID, err := mm.Insert(member.FirstName, member.LastName, "", "", "", "", "", member.Region, time.Now())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,8 +61,8 @@ func TestGetMemberProfile(t *testing.T) {
 
 	mm := MemberModel{DB: db}
 
-	member := &Member{FirstName: "Lou", LastName: "Garwood", Region: 1}
-	memberID, err := mm.Insert(member.FirstName, member.LastName, "", "", "", member.Region, time.Now())
+	member := &Member{FirstName: "Lou", LastName: "Garwood", JointFirstName: sql.NullString{String: "Annie"}, JointLastName: sql.NullString{String: "Garwood"}, Region: 1}
+	memberID, err := mm.Insert(member.FirstName, member.LastName, member.JointFirstName.String, member.JointLastName.String, "", "", "", member.Region, time.Now())
 	if err != nil {
 		t.Fatal(err)
 	}
