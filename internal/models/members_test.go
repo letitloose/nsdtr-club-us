@@ -79,6 +79,19 @@ func TestGetMemberProfile(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	msm := MembershipModel{DB: db}
+	membership := &Membership{MemberID: memberID, Year: 2003}
+	membershipID, err := msm.Insert(membership)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	item := &MembershipItem{MembershipID: membershipID, ItemCode: "SI", AmountPaid: 30.0}
+	_, err = msm.InsertMembershipItem(item)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	memberProfile, err := mm.GetMemberProfile(memberID)
 	if err != nil {
 		t.Fatal(err)
@@ -87,4 +100,9 @@ func TestGetMemberProfile(t *testing.T) {
 	if memberProfile.City.String != "Troy" {
 		t.Fatal("wrong address returned")
 	}
+
+	if memberProfile.Memberships[0].MembershipType != "Single" {
+		t.Fatal("wrong membership type returned")
+	}
+
 }

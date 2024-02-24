@@ -7,7 +7,7 @@ import (
 )
 
 func TestTeardown(t *testing.T) {
-	t.Skip()
+	// t.Skip()
 	db, err := sql.Open("mysql", "lougar:thewarrior@/nsdtrc_test?parseTime=true&multiStatements=true")
 	if err != nil {
 		t.Fatal(err)

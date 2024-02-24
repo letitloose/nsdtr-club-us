@@ -97,6 +97,11 @@ func (service *MemberService) MigrateLegacyMembers() error {
 		if err != nil {
 			return err
 		}
+
+		err = service.AddMemberships(member, memberID)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -110,4 +115,80 @@ func (service *MemberService) AddMemberAddress(memberID int, address *models.Add
 	}
 
 	return service.AddAddress(memberID, addressID)
+}
+
+func (service *MemberService) AddMemberships(legacyMember *models.LegacyMember, memberID int) error {
+
+	legacyMemberships, err := service.Legacy.GetMemberships(legacyMember.Member.ID)
+	if err != nil {
+		return err
+	}
+
+	mm := models.MembershipModel{DB: service.DB}
+	items, err := mm.GetDueSchedule()
+	if err != nil {
+		return err
+	}
+
+	for _, membership := range legacyMemberships {
+		newMembership := &models.Membership{MemberID: memberID, Year: membership.Year}
+		membershipID, err := mm.Insert(newMembership)
+		if err != nil {
+			return err
+		}
+
+		membershipTypeCode := lookupItem(items, legacyMember.MembershipType)
+		if legacyMember.CountryCode.String != "USA" {
+			if legacyMember.CountryCode.String == "CAN" {
+				membershipTypeCode = "CM"
+			} else {
+				membershipTypeCode = "FM"
+			}
+		}
+
+		typeItem := &models.MembershipItem{MembershipID: membershipID, ItemCode: membershipTypeCode, AmountPaid: membership.MembershipAmount}
+		_, err = mm.InsertMembershipItem(typeItem)
+		if err != nil {
+			return err
+		}
+
+		//roster
+		if membership.RosterAmount != 0.0 {
+			rosterItem := &models.MembershipItem{MembershipID: membershipID, ItemCode: "PR", AmountPaid: membership.RosterAmount}
+			_, err = mm.InsertMembershipItem(rosterItem)
+			if err != nil {
+				return err
+			}
+		}
+
+		//health and genetics donation
+		if membership.HealthDonations != 0.0 {
+			healthItem := &models.MembershipItem{MembershipID: membershipID, ItemCode: "HG", AmountPaid: membership.HealthDonations}
+			_, err = mm.InsertMembershipItem(healthItem)
+			if err != nil {
+				return err
+			}
+		}
+
+		//rescue donation
+		if membership.RescueDonations != 0.0 {
+			rescueItem := &models.MembershipItem{MembershipID: membershipID, ItemCode: "RS", AmountPaid: membership.RescueDonations}
+			_, err = mm.InsertMembershipItem(rescueItem)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func lookupItem(items []*models.DueScheduleItem, display string) string {
+	for _, item := range items {
+		if item.Display == display {
+			return item.Code
+		}
+	}
+
+	return ""
 }

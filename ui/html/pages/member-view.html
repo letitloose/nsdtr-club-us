@@ -39,6 +39,35 @@
             <label class="label" for="address">Address:</label>
             <p class="datafield" id="address"> {{.Address1}} {{.Address2.String}} {{.City.String}}, {{.StateProvince.String}} {{.ZipCode.String}}</p>
 
+            <h3>Membership List</h3>
+            <table>
+                <th>
+                    <tr>
+                        <td>Year</td>
+                        <td>Type</td>
+                        <td>Amount</td>
+                        <td>Printed Roster Amount</td>
+                        <td>Health and Genetics Amount</td>
+                        <td>Donation Amount</td>
+                        <td>Rescue Amount</td>
+                        <td>Total Amount</td>
+                    </tr>
+                </th>
+                <tbody>
+                    {{range .Memberships}}
+                        <tr>
+                            <td>{{.Year}}</td>
+                            <td>{{.MembershipType}}</td>
+                            <td>${{.MembershipAmount.Float64}}</td>
+                            <td>${{.PrAmount.Float64}}</td>
+                            <td>${{.HealthAmount.Float64}}</td>
+                            <td>${{.DonationAmount.Float64}}</td>
+                            <td>${{.ResueAmount.Float64}}</td>
+                            <td>${{.TotalPaid.Float64}}</td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
             
             <a href="/member"><- Return Member List</a>
         </div>

@@ -71,9 +71,11 @@ CREATE TABLE membership (
 ALTER TABLE membership ADD FOREIGN KEY (memberID) REFERENCES members(id);
 
 CREATE TABLE membershipItem (
+	id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	membershipID INTEGER NOT NULL,
 	itemCode VARCHAR(5),
 	amountPaid FLOAT
 );
 
 ALTER TABLE membershipItem ADD FOREIGN KEY (membershipID) REFERENCES membership(id);
+ALTER TABLE membershipItem ADD FOREIGN KEY (itemCode) REFERENCES dueSchedule(code);

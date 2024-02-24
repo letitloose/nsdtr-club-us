@@ -11,13 +11,14 @@ type LegacyModel struct {
 type LegacyMember struct {
 	*Member
 	*Address
+	MembershipType string
 }
 
 type LegacyMembership struct {
 	MemberID         int
 	Year             int
 	CheckDate        sql.NullTime
-	CheckNumber      int
+	CheckNumber      sql.NullString
 	AmountPaid       float32
 	MembershipAmount float32
 	RosterAmount     float32
@@ -30,7 +31,7 @@ type LegacyMembership struct {
 
 func (m *LegacyModel) List() ([]*LegacyMember, error) {
 
-	stmt := `select  FirstName1, LastName1, FirstName2, LastName2, HomePhone, EmailName, ` + "`Web Page`" + `, Region, DateJoined1, 
+	stmt := `select  MemberID, FirstName1, LastName1, FirstName2, LastName2, HomePhone, EmailName, ` + "`Web Page`" + ", `Membership type`" + `, Region, DateJoined1, 
 		HomeAddress1, HomeAddress2, HomeCity, HomeStateOrProvince, HomePostalCode, HomeCountry from Members`
 
 	rows, err := m.DB.Query(stmt)
@@ -44,8 +45,8 @@ func (m *LegacyModel) List() ([]*LegacyMember, error) {
 	for rows.Next() {
 		member := &LegacyMember{Member: &Member{}, Address: &Address{}}
 
-		err := rows.Scan(&member.FirstName, &member.LastName, &member.JointFirstName, &member.JointLastName, &member.PhoneNumber,
-			&member.Email, &member.Website, &member.Region, &member.JoinedDate, &member.Address1,
+		err := rows.Scan(&member.Member.ID, &member.FirstName, &member.LastName, &member.JointFirstName, &member.JointLastName, &member.PhoneNumber,
+			&member.Email, &member.Website, &member.MembershipType, &member.Region, &member.JoinedDate, &member.Address1,
 			&member.Address2, &member.City, &member.StateProvince, &member.ZipCode, &member.CountryCode)
 		if err != nil {
 			return nil, err

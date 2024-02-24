@@ -24,6 +24,7 @@ type Member struct {
 type MemberProfile struct {
 	*Member
 	*Address
+	Memberships []*Membership
 }
 
 type MemberModel struct {
@@ -128,5 +129,13 @@ func (m *MemberModel) GetMemberProfile(id int) (*MemberProfile, error) {
 			return nil, err
 		}
 	}
+
+	//get memberships
+	mm := MembershipModel{DB: m.DB}
+	member.Memberships, err = mm.GetMemberships(member.Member.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	return member, nil
 }
