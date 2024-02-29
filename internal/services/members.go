@@ -23,6 +23,18 @@ type MemberForm struct {
 	validator.Validator
 }
 
+type MembershipForm struct {
+	ID               int
+	MemberID         int
+	Year             int
+	MembershipType   string
+	MembershipAmount float32
+	RosterAmount     float32
+	HealthDonations  float32
+	RescueDonations  float32
+	validator.Validator
+}
+
 type MemberService struct {
 	*models.MemberModel
 	Legacy *models.LegacyModel
@@ -115,6 +127,51 @@ func (service *MemberService) AddMemberAddress(memberID int, address *models.Add
 	}
 
 	return service.AddAddress(memberID, addressID)
+}
+
+func (service *MemberService) AddMembership(membershipForm *MembershipForm) error {
+
+	mm := models.MembershipModel{DB: service.DB}
+	newMembership := &models.Membership{MemberID: membershipForm.MemberID, Year: membershipForm.Year}
+	membershipID, err := mm.Insert(newMembership)
+	if err != nil {
+		return err
+	}
+
+	typeItem := &models.MembershipItem{MembershipID: membershipID, ItemCode: membershipForm.MembershipType, AmountPaid: membershipForm.MembershipAmount}
+	_, err = mm.InsertMembershipItem(typeItem)
+	if err != nil {
+		return err
+	}
+
+	//roster
+	if membershipForm.RosterAmount != 0.0 {
+		rosterItem := &models.MembershipItem{MembershipID: membershipID, ItemCode: "PR", AmountPaid: membershipForm.RosterAmount}
+		_, err = mm.InsertMembershipItem(rosterItem)
+		if err != nil {
+			return err
+		}
+	}
+
+	//health and genetics donation
+	if membershipForm.HealthDonations != 0.0 {
+		healthItem := &models.MembershipItem{MembershipID: membershipID, ItemCode: "HG", AmountPaid: membershipForm.HealthDonations}
+		_, err = mm.InsertMembershipItem(healthItem)
+		if err != nil {
+			return err
+		}
+	}
+
+	//rescue donation
+	if membershipForm.RescueDonations != 0.0 {
+		rescueItem := &models.MembershipItem{MembershipID: membershipID, ItemCode: "RS", AmountPaid: membershipForm.RescueDonations}
+		_, err = mm.InsertMembershipItem(rescueItem)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (service *MemberService) AddMemberships(legacyMember *models.LegacyMember, memberID int) error {

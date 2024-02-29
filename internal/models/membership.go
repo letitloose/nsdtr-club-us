@@ -14,7 +14,6 @@ type Membership struct {
 	MembershipAmount sql.NullFloat64
 	PrAmount         sql.NullFloat64
 	HealthAmount     sql.NullFloat64
-	DonationAmount   sql.NullFloat64
 	ResueAmount      sql.NullFloat64
 	TotalPaid        sql.NullFloat64
 	Items            []*MembershipItem
@@ -68,14 +67,12 @@ func (m *MembershipModel) GetMemberships(memberID int) ([]*Membership, error) {
 		mtype.amountPaid as typeAmount,
 		printedRoster.amountPaid as prAmount,
 		health.amountPaid as healthAmount,
-		donation.amountPaid as donationAmount,
 		rescue.amountPaid as rescueAmount,
-		IFNULL(mtype.amountPaid, 0) + IFNULL(printedRoster.amountPaid, 0) + IFNULL(health.amountPaid, 0) + IFNULL(donation.amountPaid, 0) + IFNULL(rescue.amountPaid, 0) as totalPaid
+		IFNULL(mtype.amountPaid, 0) + IFNULL(printedRoster.amountPaid, 0) + IFNULL(health.amountPaid, 0) + IFNULL(rescue.amountPaid, 0) as totalPaid
 	from membership m
 	left join (select item.display, mi.amountPaid, mi.membershipID  from membershipItem mi join dueSchedule item on item.code = mi.itemCode and mi.itemCode in ('SI', 'JT', 'JR', 'CM', 'FM'))  mtype on mtype.membershipID = m.id 
 	left join (select item.display, mi.amountPaid, mi.membershipID  from membershipItem mi join dueSchedule item on item.code = mi.itemCode and mi.itemCode in ('PR'))  printedRoster on printedRoster.membershipID = m.id 
 	left join (select item.display, mi.amountPaid, mi.membershipID  from membershipItem mi join dueSchedule item on item.code = mi.itemCode and mi.itemCode in ('HG'))  health on health.membershipID = m.id 
-	left join (select item.display, mi.amountPaid, mi.membershipID  from membershipItem mi join dueSchedule item on item.code = mi.itemCode and mi.itemCode in ('DN'))  donation on donation.membershipID = m.id 
 	left join (select item.display, mi.amountPaid, mi.membershipID  from membershipItem mi join dueSchedule item on item.code = mi.itemCode and mi.itemCode in ('RS'))  rescue on rescue.membershipID = m.id 
 	where m.memberID = ?;`
 
@@ -88,7 +85,7 @@ func (m *MembershipModel) GetMemberships(memberID int) ([]*Membership, error) {
 	memberships := []*Membership{}
 	for rows.Next() {
 		membership := &Membership{}
-		err := rows.Scan(&membership.ID, &membership.Year, &membership.MembershipType, &membership.MembershipAmount, &membership.PrAmount, &membership.HealthAmount, &membership.DonationAmount, &membership.ResueAmount, &membership.TotalPaid)
+		err := rows.Scan(&membership.ID, &membership.Year, &membership.MembershipType, &membership.MembershipAmount, &membership.PrAmount, &membership.HealthAmount, &membership.ResueAmount, &membership.TotalPaid)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, ErrNoRecord

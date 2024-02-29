@@ -112,7 +112,7 @@ func (m *MemberModel) GetMemberProfile(id int) (*MemberProfile, error) {
 	stmt := `select m.id, m.firstname, m.lastname, m.jointfirstname, m.jointlastname, m.phonenumber, m.email, m.website, m.region, m.created, m.joined, 
 				a.address1, a.address2, a.city, a.stateProvince, a.zipCode, a.country
 		from members m
-		join address a on a.id = m.addressID
+		left join address a on a.id = m.addressID
     	where m.id = ?`
 
 	result := m.DB.QueryRow(stmt, id)

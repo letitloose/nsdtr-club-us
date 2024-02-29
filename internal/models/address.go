@@ -7,7 +7,7 @@ import (
 
 type Address struct {
 	ID            int
-	Address1      string
+	Address1      sql.NullString
 	Address2      sql.NullString
 	City          sql.NullString
 	StateProvince sql.NullString
