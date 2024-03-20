@@ -1,21 +1,29 @@
 {{define "nav"}}
-<nav>
-    <ul class="main-nav">
-        <li><a href='/'>Home</a></li>
-        {{if .IsActive}}
-            <li><a href='/member/create'>Create Member</a></li>
-        {{end}}
+<div class="header-left">
+    <img id="nav-title" src="/static/images/nsdtrc-logo.jpg">
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href='/member/'>Member List</a></li>
+        </ul>        
+    </nav>   
+</div>
 
-        {{if .IsAuthenticated}}
-        <div class="push">
-            <form action='/user/logout' method='POST'>
+<div class="header-right">
+    <nav >
+        <ul>
+            {{if .IsAuthenticated}}
+            <li ><form action='/user/logout' method='POST'>
                 <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
-                <button class="nav-button">Logout</button>
-            </form>
-        </div>
-        {{else}}
-            <li class="push"><a href='/user/login'>Login/Signup</a></li>
-        {{end}}
-    </ul>
-</nav>
+                <button>Logout</button>
+            </form></li>
+                
+            {{else}}
+                <li><a href='/user/login'>Login/Signup</a></li>
+            {{end}}
+        </ul>        
+    </nav>  
+</div>
+ 
+
 {{end}}

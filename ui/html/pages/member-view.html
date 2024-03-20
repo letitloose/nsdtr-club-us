@@ -37,7 +37,7 @@
             {{end}}
 
             <label class="label" for="address">Address:</label>
-            <p class="datafield" id="address"> {{.Address1}} {{.Address2.String}} {{.City.String}}, {{.StateProvince.String}} {{.ZipCode.String}}</p>
+            <p class="datafield" id="address"> {{.Address1.String}} {{.Address2.String}} {{.City.String}}, {{.StateProvince.String}} {{.ZipCode.String}}</p>
 
             <h3>Membership List</h3>
             <table>
@@ -65,6 +65,8 @@
                         </tr>
                     {{end}}
                 </tbody>
+                <!-- <button onclick="location.href='/membership/create?memberID={{.Member.ID}}';" >Add</button>  -->
+                <button><a href="/membership/create?memberID={{.Member.ID}}">Add</a></button> 
             </table>
             
             <a href="/member"><- Return Member List</a>

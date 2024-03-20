@@ -1,74 +1,69 @@
-
-body {
-    background-color: lightblue;
-    margin: auto;
+/* Global */
+* {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica;
 }
 
-header{
-    max-width: 100%;
-}
-
-header img {
-    width: 100%;
-}
-
-.main-nav {
+/* Header */
+header {
     display: flex;
-    background-color: lightyellow;
-    margin-top: 0px;
-    list-style-type: none;
-    height: 40px;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 8px #ddd;
+    font-family: arial, sans-serif;
+    background-color: beige;
 }
 
-.nav-button {
-    background-color: lightyellow;
-    border-style: none;
+header img{
+    height: 100px;
+    margin-right: 10px;
+}
+.header-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+.header-right {
+    display: flex;
+    justify-content: flex-end;
 }
 
-.nav-button {
-    background-color: lightyellow;
-    border-style: none;
-    padding: 10px;
-    margin: 0px;
+header li {
+    list-style: none;
+    display: inline-block;
+    padding: 0 20px;
 }
 
-.main-nav .nav-button:hover {
-    background-color: darkblue;
-    color: lightyellow;
-}
-
-.main-nav li {
-    padding-top: 10px;
-}
-
-.main-nav a {
+header a {
     text-decoration: none;
-    padding: 11px;
+    color: #555;
+    transition: all 0.3s ease 0s;
 }
 
-.main-nav a:hover {
-    background-color: darkblue;
-    color: lightyellow;
+header a:hover {
+    color: #b2dfdb;
 }
-  
-.push {
-    margin-left: auto;
-    padding-right: 10px;
+
+header button {
+    background: none!important;
+    border: none;
+    padding: 0!important;
+    color: #555;
+    cursor: pointer;
+    font-size: 100%;
 }
 
 .content {
     max-width: 90%;
     margin-left: 5%;
-    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
 }
 
-footer {
-    display: flex;
-    padding: .5em;
-    background-color: lightyellow;
-    width: 100%;
-    text-align: center;
-    margin-top: auto;
+header button:hover {
+    color: #b2dfdb;
 }
 
 .label {

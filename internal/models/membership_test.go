@@ -149,13 +149,14 @@ func TestGetDueScheduleItem(t *testing.T) {
 
 	mm := MembershipModel{DB: db}
 
-	items, err := mm.GetDueSchedule()
+	doeSchedule, err := mm.GetDueSchedule()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	expected := 9
-	if len(items) != expected {
-		t.Fatalf("wrong number of results returned. expecting %d, got %d", expected, len(items))
+	got := len(doeSchedule.Items)
+	if got != expected {
+		t.Fatalf("wrong number of results returned. expecting %d, got %d", expected, got)
 	}
 }

@@ -182,7 +182,7 @@ func (service *MemberService) AddMemberships(legacyMember *models.LegacyMember, 
 	}
 
 	mm := models.MembershipModel{DB: service.DB}
-	items, err := mm.GetDueSchedule()
+	dueSchedule, err := mm.GetDueSchedule()
 	if err != nil {
 		return err
 	}
@@ -194,7 +194,7 @@ func (service *MemberService) AddMemberships(legacyMember *models.LegacyMember, 
 			return err
 		}
 
-		membershipTypeCode := lookupItem(items, legacyMember.MembershipType)
+		membershipTypeCode := lookupItem(dueSchedule.Items , legacyMember.MembershipType)
 		if legacyMember.CountryCode.String != "USA" {
 			if legacyMember.CountryCode.String == "CAN" {
 				membershipTypeCode = "CM"

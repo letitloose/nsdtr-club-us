@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
-	"github.com/letitloose/nsdtr-club-us/ui"
 )
 
 func (app *application) routes() http.Handler {
@@ -17,7 +19,13 @@ func (app *application) routes() http.Handler {
 		app.notFound(w)
 	})
 
-	fileServer := http.FileServer(http.FS(ui.Files))
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(dir)
+	fileServer := http.StripPrefix("/static/", http.FileServer(http.Dir("./ui/static")))
+	// fileServer := http.FileServer(http.FS(ui.Files))
 	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
 
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
@@ -40,6 +48,8 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodPost, "/member/create", active.ThenFunc(app.memberCreate))
 	router.Handler(http.MethodGet, "/member/view/:id", active.ThenFunc(app.memberView))
 	router.Handler(http.MethodGet, "/member", active.ThenFunc(app.memberList))
+	router.Handler(http.MethodGet, "/membership/create", active.ThenFunc(app.membershipForm))
+	router.Handler(http.MethodPost, "/membership/create", active.ThenFunc(app.membershipCreate))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 

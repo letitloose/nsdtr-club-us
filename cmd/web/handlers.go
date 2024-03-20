@@ -76,6 +76,102 @@ func (app *application) memberCreate(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/member/view/%d", id), http.StatusSeeOther)
 }
 
+func (app *application) membershipForm(w http.ResponseWriter, r *http.Request) {
+	// params := httprouter.ParamsFromContext(r.Context())
+
+	id, err := strconv.Atoi(r.URL.Query().Get("memberID"))
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+
+	member, err := app.memberService.GetMemberProfile(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+	data := app.newTemplateData(r)
+	data.Member = member
+
+	data.Form = services.MembershipForm{
+		MemberID: id,
+		Year:     2024,
+	}
+
+	app.render(w, http.StatusOK, "membership-create.html", data)
+}
+
+func (app *application) membershipCreate(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	memberID, err := strconv.Atoi(r.PostForm.Get("member-id"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	year, err := strconv.Atoi(r.PostForm.Get("year"))
+	if err != nil {
+		app.errorLog.Println(err)
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	membershipAmount, err := strconv.Atoi(r.PostForm.Get("membership-amount"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	rosterAmt, err := strconv.Atoi(r.PostForm.Get("roster-amount"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	healthDonation, err := strconv.Atoi(r.PostForm.Get("health-donation"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	rescueDonation, err := strconv.Atoi(r.PostForm.Get("rescue-donation"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := &services.MembershipForm{
+		MemberID:         memberID,
+		Year:             year,
+		MembershipType:   r.PostForm.Get("membership-type"),
+		MembershipAmount: float32(membershipAmount),
+		RosterAmount:     float32(rosterAmt),
+		HealthDonations:  float32(healthDonation),
+		RescueDonations:  float32(rescueDonation),
+	}
+
+	err = app.memberService.AddMembership(form)
+	if err != nil {
+		if errors.Is(err, models.ErrBadData) {
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, http.StatusUnprocessableEntity, "membership-create.html", data)
+			return
+		} else {
+			app.serverError(w, err)
+		}
+	}
+
+	//put success message in flash
+	app.sessionManager.Put(r.Context(), "flash", "Membership successfully created!")
+
+	// Redirect the user to the relevant page for the snippet.
+	http.Redirect(w, r, fmt.Sprintf("/member/view/%d", memberID), http.StatusSeeOther)
+}
+
 func (app *application) memberView(w http.ResponseWriter, r *http.Request) {
 
 	params := httprouter.ParamsFromContext(r.Context())

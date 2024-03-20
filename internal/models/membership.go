@@ -33,6 +33,10 @@ type DueScheduleItem struct {
 	Year    int
 }
 
+type DueSchedule struct {
+	Items []*DueScheduleItem
+}
+
 type MembershipModel struct {
 	DB *sql.DB
 }
@@ -170,7 +174,7 @@ func (m *MembershipModel) LookupDueScheduleItem(display string) (*DueScheduleIte
 	return item, nil
 }
 
-func (m *MembershipModel) GetDueSchedule() ([]*DueScheduleItem, error) {
+func (m *MembershipModel) GetDueSchedule() (*DueSchedule, error) {
 
 	stmt := `select code, display, cost, year from dueSchedule`
 
@@ -194,5 +198,5 @@ func (m *MembershipModel) GetDueSchedule() ([]*DueScheduleItem, error) {
 		items = append(items, item)
 	}
 
-	return items, nil
+	return &DueSchedule{Items: items}, nil
 }

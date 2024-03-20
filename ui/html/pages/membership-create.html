@@ -1,0 +1,39 @@
+{{define "title"}}Member #{{.Member.Member.ID}}{{end}}
+
+{{define "main"}}
+    {{with .Member}}
+        <div class='content'>
+            <label class="label" for="name">Name:</label>
+            <p class="datafield" id="name"> {{.FirstName}} {{.LastName}}</p>
+            
+            {{if ne .JointLastName.String  ""}}
+            <label class="label" for="email">Joint Member:</label>
+            <p class="datafield" id="email"> {{.JointFirstName.String}} {{.JointLastName.String}}</p>
+            {{end}}
+            
+            <form action='/membership/create' method='POST'>
+                <input type='hidden' name='csrf_token' value='{{$.CSRFToken}}'>
+                <input type='hidden' name='member-id' value='{{$.Form.MemberID}}'>
+                <input type='number' name='year'  value='{{$.Form.Year}}'>
+                <input type='text' name='membership-type'  value='SI'>
+                <input type='number' name='membership-amount'  value='{{$.Form.MembershipAmount}}'>
+                <input type='number' name='roster-amount'  value='{{$.Form.RosterAmount}}'>
+                <input type='number' name='health-donation'  value='{{$.Form.HealthDonations}}'>
+                <input type='number' name='rescue-donation'  value='{{$.Form.RescueDonations}}'>
+                <!-- <div>
+                    <label>Year:</label>
+                    <input type='text' name='year' value='{{$.Form.Year}}'>
+                    {{with $.Form.FieldErrors.year}}
+                        <label class='error'>{{.}}</label>
+                    {{end}}
+                </div> -->
+                
+                <div>
+                    <input type='submit' value='Create Membership'>
+                </div>
+            </form>
+            
+            <a href="/member/view/{{.Member.ID}}"><- Cancel</a>
+        </div>
+    {{end}}
+{{end}}
