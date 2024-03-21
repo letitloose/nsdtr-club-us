@@ -10,7 +10,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 1px 8px #ddd;
+    /* box-shadow: 0 1px 8px #ddd; */
     font-family: arial, sans-serif;
     background-color: beige;
 }
@@ -54,16 +54,17 @@ header button {
     font-size: 100%;
 }
 
+
+body {
+    background-color: white;
+}
 .content {
     max-width: 90%;
     margin-left: 5%;
-    margin-top: 20px;
+    padding-top: 20px;
     display: flex;
     justify-content: center;
-}
-
-header button:hover {
-    color: #b2dfdb;
+    background-color: azure;
 }
 
 .label {
@@ -81,4 +82,32 @@ header button:hover {
 
 .flash {
     color: yellow;
+}
+
+.member-list {
+    text-align: center;
+    width: 100%;
+}
+
+.member-view {
+    text-align: left;
+    width: 98%;
+    margin: 1%;
+}
+
+table {
+    border-collapse: collapse;
+    width: 98%;
+    margin: 1%;
+    margin-bottom: 1%;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+p {
+    padding: 2px;
 }

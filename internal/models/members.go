@@ -120,7 +120,7 @@ func (m *MemberModel) GetMemberProfile(id int) (*MemberProfile, error) {
 	member := &MemberProfile{Member: &Member{}, Address: &Address{}}
 
 	err := result.Scan(&member.Member.ID, &member.FirstName, &member.LastName, &member.JointFirstName, &member.JointLastName, &member.PhoneNumber,
-		&member.Email, &member.Website, &member.Region, &member.JoinedDate, &member.CreatedDate, &member.Address1,
+		&member.Email, &member.Website, &member.Region, &member.CreatedDate, &member.JoinedDate, &member.Address1,
 		&member.Address2, &member.City, &member.StateProvince, &member.ZipCode, &member.CountryCode)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
