@@ -2,46 +2,44 @@
 
 {{define "main"}}
     {{with .Member}}
-        <div class="member-view">
-            <h1>{{.FirstName}} {{.LastName}}</h1>
+            <div class="row">
+                <div class="col-50">
+                    <h2>{{.FirstName}} {{.LastName}}</h2>
+                    {{if .Email.Valid}}
+                        <p><a href="mailto:{{.Email.String}}">{{.Email.String}}</a> </p>
+                    {{end}}
+                    {{if .PhoneNumber.Valid}}
+                        <p> {{.PhoneNumber.String}}</p>
+                    {{end}}
+
+                    {{ $length := len .Website.String }} 
+                    {{ if gt $length 0 }}
+                        <p><a href="https://{{.Website.String}}">{{.Website.String}}</a> </p>
+                    {{end}}
+
+                    <p> {{.Address1.String}} {{.Address2.String}} {{.City.String}}, {{.StateProvince.String}} {{.ZipCode.String}}</p>
             
-            <div style="color:red;">
-                
-                {{if ne .JointLastName.String  ""}}
-                <label class="label" for="email">Joint Member:</label>
-                <p class="datafield" id="email"> {{.JointFirstName.String}} {{.JointLastName.String}}</p>
-                {{end}}
-                
-                {{if .Email.Valid}}
-                <p><a href="mailto:{{.Email.String}}">{{.Email.String}}</a> </p>
-                {{end}}
-
-                {{if .PhoneNumber.Valid}}
-                <p> {{.PhoneNumber.String}}</p>
-                {{end}}
-
-                {{ $length := len .Website.String }} 
-                {{ if gt $length 0 }}
-                <p><a href="https://{{.Website.String}}">{{.Website.String}}</a> </p>
-                {{end}}
-
-                <p class="datafield" id="address"> {{.Address1.String}} {{.Address2.String}} {{.City.String}}, {{.StateProvince.String}} {{.ZipCode.String}}</p>
-            </div>
-
-            <div style="display: none">
-                <label class="label" for="region">Region:</label>
-                <p class="datafield" id="region"> {{.Region}}</p>
-
-                <label class="label" for="created">Created Date:</label>
-                <p class="datafield" id="created"> {{humanDate .CreatedDate}}</p>
-
-                {{if .JoinedDate.Valid}}
-                    <label class="label" for="joined">Joined Date:</label>
-                    <p class="datafield" id="joined"> {{humanDate .JoinedDate.Time}}</p>
-                {{end}}
-            </div>
-            
-            <h3>Membership List</h3>
+                </div>
+                <div class="col-25 top-pad">
+                    {{if ne .JointLastName.String  ""}}
+                        <div class="row">
+                            <div class="col-25 right">Joint Member:</div>
+                            <div class="col-25">{{.JointFirstName.String}} {{.JointLastName.String}}</div>
+                        </div>
+                    {{end}}
+                    <div class="row">
+                        <div class="col-25 right">Region:</div>
+                        <div class="col-25">{{.Region}}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-25 right">Joined:</div>
+                        <div class="col-25">{{humanDate .JoinedDate.Time}}</div>
+                    </div>
+                </div>
+                <div class="col-25"></div>
+            </div> 
+        
+            <h2>Membership History<button><a href="/membership/create?memberID={{.Member.ID}}">Add</a></button> </h2>
             <table>
                 <tr>
                     <td>Year</td>
@@ -53,20 +51,17 @@
                     <td>Total Amount</td>
                 </tr>
                 {{range .Memberships}}
-                    <tr>
-                        <td>{{.Year}}</td>
-                        <td>{{.MembershipType}}</td>
-                        <td>${{.MembershipAmount.Float64}}</td>
-                        <td>${{.PrAmount.Float64}}</td>
-                        <td>${{.HealthAmount.Float64}}</td>
-                        <td>${{.ResueAmount.Float64}}</td>
-                        <td>${{.TotalPaid.Float64}}</td>
-                    </tr>
-                {{end}}
-                
+                <tr>
+                    <td>{{.Year}}</td>
+                    <td>{{.MembershipType}}</td>
+                    <td>${{.MembershipAmount.Float64}}</td>
+                    <td>${{.PrAmount.Float64}}</td>
+                    <td>${{.HealthAmount.Float64}}</td>
+                    <td>${{.ResueAmount.Float64}}</td>
+                    <td>${{.TotalPaid.Float64}}</td>
+                </tr>
+            {{end}}
             </table>
-            <button><a href="/membership/create?memberID={{.Member.ID}}">Add</a></button> 
-            
         </div>
     {{end}}
 {{end}}

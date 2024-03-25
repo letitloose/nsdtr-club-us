@@ -54,17 +54,29 @@ header button {
     font-size: 100%;
 }
 
+#logo {
+    height: 40px;
+    padding-left: 5px;
+}
+
 
 body {
     background-color: white;
 }
+
 .content {
     max-width: 90%;
     margin-left: 5%;
-    padding-top: 20px;
-    display: flex;
-    justify-content: center;
+    padding: 20px;
     background-color: azure;
+}
+
+.content-center {
+    max-width: 90%;
+    margin-left: 5%;
+    padding: 20px 0px;
+    background-color: azure;
+    text-align: center;
 }
 
 .label {
@@ -98,7 +110,7 @@ body {
 table {
     border-collapse: collapse;
     width: 98%;
-    margin: 1%;
+    margin: 0% 1%;
     margin-bottom: 1%;
 }
 
@@ -111,3 +123,69 @@ th, td {
 p {
     padding: 2px;
 }
+
+.row {
+    display: flex;
+    margin: 0 -16px;
+  }
+  
+  .col-25 {
+    flex: 25%;
+  }
+  
+  .col-50 {
+    flex: 50%;
+  }
+
+  .right {
+    text-align: right;
+  }
+
+  .left {
+    text-align: left;
+  }
+  
+  .col-75 {
+    flex: 75%;
+  }
+  
+  .col-25,
+  .col-50,
+  .col-75 {
+    padding: 0 16px;
+  }
+
+  .top-pad {
+    padding-top: 25px;
+  }
+
+  input[type=text] {
+    width: 10%;
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+
+  input[type=checkbox] {
+    margin-bottom: 10px;
+    padding: 5px;
+  }
+
+  input[type=number] {
+    width: 25%;
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+
+select {
+    width: 50%;
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+
+  /*https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_checkout_form*/

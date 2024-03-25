@@ -2,38 +2,71 @@
 
 {{define "main"}}
     {{with .Member}}
-        <div>
-            <label class="label" for="name">Name:</label>
-            <p class="datafield" id="name"> {{.FirstName}} {{.LastName}}</p>
-            
-            {{if ne .JointLastName.String  ""}}
-            <label class="label" for="email">Joint Member:</label>
-            <p class="datafield" id="email"> {{.JointFirstName.String}} {{.JointLastName.String}}</p>
-            {{end}}
-            
+    
+            <div class="content-center">
+                <h2>Add {{$.Form.Year}} Membership for {{.FirstName}} {{.LastName}}</h2>
+                <div class="row">
+                    <div class="col-50 right">Joint Member:</div>
+                    <div class="col-50 left">{{.JointFirstName.String}} {{.JointLastName.String}}</div>
+                </div>
+            </div>
+           
             <form action='/membership/create' method='POST'>
                 <input type='hidden' name='csrf_token' value='{{$.CSRFToken}}'>
                 <input type='hidden' name='member-id' value='{{$.Form.MemberID}}'>
-                <input type='number' name='year'  value='{{$.Form.Year}}'>
-                <input type='text' name='membership-type'  value='SI'>
+                <input type='hidden' name='year'  value='{{$.Form.Year}}'>
+                <!-- <input type='text' name='membership-type'  value='SI'>
                 <input type='number' name='membership-amount'  value='{{$.Form.MembershipAmount}}'>
                 <input type='number' name='roster-amount'  value='{{$.Form.RosterAmount}}'>
                 <input type='number' name='health-donation'  value='{{$.Form.HealthDonations}}'>
-                <input type='number' name='rescue-donation'  value='{{$.Form.RescueDonations}}'>
-                <!-- <div>
-                    <label>Year:</label>
-                    <input type='text' name='year' value='{{$.Form.Year}}'>
-                    {{with $.Form.FieldErrors.year}}
-                        <label class='error'>{{.}}</label>
-                    {{end}}
-                </div> -->
+                <input type='number' name='rescue-donation'  value='{{$.Form.RescueDonations}}'> -->
+                <div class="row">
+                    <div class="col-50 right">Membership Type:</div>
+                    <div class="col-25 left">
+                        <select id="membership-type" name="membership-type">
+                            <option value="SI">Single</option>
+                            <option value="JT">Joint</option>
+                            <option value="JR">Junior</option>
+                        </select>
+                    </div>
+                    <div class="col-25 left">
+                        <input type='number' id="membership-amount" name='membership-amount' value='{{$.Form.MembershipAmount}}'>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-50 right">Printed Roster:</div>
+                    <div class="col-25 left">
+                        <input type="checkbox" id="roster">
+                    </div>
+                    <div class="col-25 left">
+                        <input type='number' id='roster-amount' name='roster-amount' value='{{$.Form.RosterAmount}}'>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-50 right">Health and Genetics Donation:</div>
+                    <div class="col-25 left"></div>
+                    <div class="col-25 left">
+                        <input type="number" id="health-amount" name='health-donation'>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-50 right">Rescue Donation:</div>
+                    <div class="col-25 left"></div>
+                    <div class="col-25 left">
+                        <input type="number" id="rescue-amount" name='rescue-donation'>
+                    </div>
+                </div>
                 
-                <div>
-                    <input type='submit' value='Create Membership'>
+                <div class="row">
+                    <div class="col-50 right">
+                        <input type='submit' value='Create Membership'>
+                    </div>
+                    <div class="col-50"></div>
                 </div>
             </form>
             
             <a href="/member/view/{{.Member.ID}}"><- Cancel</a>
-        </div>
+
+        <script src="/static/js/membership.js" type="text/javascript"></script>
     {{end}}
 {{end}}
