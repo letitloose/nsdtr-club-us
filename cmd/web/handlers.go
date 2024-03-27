@@ -153,6 +153,7 @@ func (app *application) membershipCreate(w http.ResponseWriter, r *http.Request)
 		RescueDonations:  float32(rescueDonation),
 	}
 
+	app.infoLog.Println(*form)
 	err = app.memberService.AddMembership(form)
 	if err != nil {
 		if errors.Is(err, models.ErrBadData) {

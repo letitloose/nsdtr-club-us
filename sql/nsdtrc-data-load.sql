@@ -83,7 +83,7 @@ insert into countryCode  (code, display) values ("UK", "United Kingdom");
 -- due items
 insert into dueSchedule  (code, display, cost, year) values ("SI", "Single", 25.0, 2024);
 insert into dueSchedule  (code, display, cost, year) values ("JT", "Joint", 35.0, 2024);
-insert into dueSchedule  (code, display, cost, year) values ("JN", "Junior", 12.0, 2024);
+insert into dueSchedule  (code, display, cost, year) values ("JR", "Junior", 12.0, 2024);
 insert into dueSchedule  (code, display, cost, year) values ("CM", "Canadian Membership", 28.0, 2024);
 insert into dueSchedule  (code, display, cost, year) values ("FM", "Foreign Membership", 41.0, 2024);
 insert into dueSchedule  (code, display, cost, year) values ("PR", "Printed Roster", 5.0, 2024);

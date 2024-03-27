@@ -1,7 +1,8 @@
 {{define "title"}}Home{{end}}
 
 {{define "main"}}
-<h2>Welcome to the Toller Club.</h2>
+<div class="content-center">
+    <h2>Welcome to the Toller Club.</h2>
     {{if .IsActive}}
         <p>Would you like to see the <a href="/member">Member List</a>?</p>
     {{else}}
@@ -11,4 +12,5 @@
             <p>Would you like to see the Member List?  Then please <a href="/user/login">Login.</a></p>
         {{end}}
     {{end}}
+</div>
 {{end}}
